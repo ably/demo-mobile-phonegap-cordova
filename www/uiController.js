@@ -19,6 +19,11 @@
             $messageList.append($li);
         }
 
+        function updateMembers(members) {
+            members = members || [];
+            $('#main-app-view .members-count').text(members.length);
+        }
+
         return {
             onMessageReceived: function (message) {
                 showMessage({
@@ -37,14 +42,17 @@
                     }
                 }
             },
-            onPresence: function (presenceMessage) {
+            onPresence: function (presenceMessage, members) {
                 var actionText;
                 if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                     actionText = 'entered';
                 }
+
                 if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
                     actionText = 'left';
                 }
+
+                updateMembers(members);
                 showPresence({name: presenceMessage.clientId, action: actionText});
             },
 

@@ -28,6 +28,12 @@
                 var ablyChannel = ably.channels.get(Constants.ABLY_CHANNEL_NAME);
 
                 ablyChannel.attach(function (err) {
+                    function getMembersAndCallUiController(presenceMessage) {
+                        ablyChannel.presence.get(function (clientId, members) {
+                            uiController.onPresence(presenceMessage, members);
+                        });
+                    }
+
                     if (err) {
                         uiController.onError(err);
                         return;
@@ -35,8 +41,8 @@
 
                     ablyChannel.subscribe(Constants.MESSAGE_NAME, uiController.onMessageReceived);
 
-                    ablyChannel.presence.on('enter', uiController.onPresence);
-                    ablyChannel.presence.on('leave', uiController.onPresence);
+                    ablyChannel.presence.on('enter', getMembersAndCallUiController);
+                    ablyChannel.presence.on('leave', getMembersAndCallUiController);
 
                     app.ablyChannel = ablyChannel;
                     app.ably = ably;

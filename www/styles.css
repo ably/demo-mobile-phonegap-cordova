@@ -11,3 +11,7 @@
     text-align: justify;
     font-size: 3em;
 }
+
+#message-form {
+    display: inline-block;
+}

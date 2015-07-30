@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <title>Ably.io sample chat application</title>
     <link href="styles.css" rel="stylesheet" type="text/css"/>
+
+    <script src="http://cdn.ably.io/lib/ably.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="app.js"></script>
 </head>
 <body>
+
+<div id="loading-overlay">
+    <span id="loading-message"></span>
+</div>
 
 <div id="enter-name-view">
     <form id="name-form">
@@ -14,7 +23,7 @@
     </form>
 </div>
 
-<div id="main-app-view" class="hidden">
+<div id="main-app-view">
     <div class="modal-overlay">
         <p id="status-message"></p>
     </div>
@@ -31,12 +40,8 @@
     </ul>
 </div>
 
-<script src="http://cdn.ably.io/lib/ably.min.js"></script>
-<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="http://underscorejs.org/underscore-min.js"></script>
-<script src="app.js"></script>
 <script>
-    function UiController($messageList) {
+    function UiController($messageList, $loadingOverlay, $loadingMessage) {
         function showMessage(message) {
             var $li = $('<li></li>');
             $li.addClass('chat-message');
@@ -44,14 +49,14 @@
                     + message.name
                     + ': '
                     + message.text);
-            $messageList.prepend($li);
+            $messageList.append($li);
         }
 
         function showPresence(presence) {
             var $li = $('<li></li>');
             $li.addClass('presence-message');
             $li.html(presence.name + ' has ' + presence.action + ' the channel.');
-            $messageList.prepend($li);
+            $messageList.append($li);
         }
 
         return {
@@ -74,32 +79,54 @@
             },
             onPresence: function (presenceMessage) {
                 var actionText;
-                if(presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
+                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                     actionText = 'entered';
                 }
-                if(presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
+                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
                     actionText = 'left';
                 }
                 showPresence({name: presenceMessage.clientId, action: actionText});
+            },
+
+            showLoadingOverlay: function (message) {
+                $loadingOverlay.show();
+                if (message) {
+                    $loadingMessage.text(message);
+                }
+            },
+
+            hideLoadingOverlay: function () {
+                $loadingOverlay.hide();
+                $loadingMessage.text('');
             }
         }
     }
 
     $(document).ready(function () {
+        var $mainAppView = $('#main-app-view');
         var $messageText = $('#message-text');
         var $name = $('#name');
         var $nameForm = $('#name-form');
         var $messageForm = $('#message-form');
         var $messageList = $('#message-list');
+        var $loadingOverlay = $('#loading-overlay');
+        var $loadingMessage = $('#loading-message');
 
-        var uiController = new UiController($messageList);
+        $mainAppView.hide();
+
+        var uiController = new UiController($messageList, $loadingOverlay, $loadingMessage);
         var app = new ChatApp(uiController);
+
+        uiController.showLoadingOverlay('Loading...');
+        app.initialize(function () {
+            uiController.hideLoadingOverlay();
+        });
 
         $nameForm.on('submit', function (ev) {
             ev.preventDefault();
 
-            $('#enter-name-view').toggleClass('hidden');
-            $('#main-app-view').toggleClass('hidden');
+            $('#enter-name-view').hide();
+            $('#main-app-view').show();
 
             app.joinChannel($name.val());
         });

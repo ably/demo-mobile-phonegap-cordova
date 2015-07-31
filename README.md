@@ -8,7 +8,11 @@ This Phonegap / Cordova demo uses the Ably real-time message service and provide
 * Presence, entering channels and subscribing to presence events
 * Token authentication from a URL
 
-The demo can also be run directly from within your browser.
+## View demo in your browser
+
+http://ably-phonegap-cordova-demo.herokuapp.com/
+
+This static site demo is published to Heroku, there is no server-side code to run this demo.
 
 ## Starting a local web server
 

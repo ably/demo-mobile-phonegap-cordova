@@ -6,7 +6,8 @@
     };
     var Constants = {
         MESSAGE_NAME: 'chat-message',
-        ABLY_CHANNEL_NAME: 'mobile:chat'
+        ABLY_CHANNEL_NAME: 'mobile:chat',
+        HISTORY_MESSAGES_LIMIT: 50
     };
 
     function ChatApp(uiController) {
@@ -63,7 +64,13 @@
         }
 
         function getMessagesHistory(callback) {
-            app.ablyChannel.history({limit: 50, direction: 'backwards', untilAttach: true}, function (err, result) {
+            var params = {
+                limit: Constants.HISTORY_MESSAGES_LIMIT,
+                direction: 'backwards',
+                untilAttach: true
+            };
+
+            app.ablyChannel.history(params, function (err, result) {
                 var messageIndex = 0,
                     currentMessage = {};
                 if (err) {

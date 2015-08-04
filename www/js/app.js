@@ -67,8 +67,7 @@
         function getMessagesHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards',
-                untilAttach: true
+                direction: 'backwards'
             };
 
             app.ablyChannel.history(params, function (err, result) {

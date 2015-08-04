@@ -7,7 +7,7 @@
 
     <script src="http://cdn.ably.io/lib/ably.js"></script>
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="http://underscorejs.org/underscore.js"></script>
     <script src="js/app.js"></script>
     <script src="js/uiController.js"></script>
 </head>
@@ -30,6 +30,8 @@
 
     </ul>
 
+    <span id="members-typing-indication"></span>
+
     <div>
         <img src="images/avatars.png" width="32"/>
         <span class="members-count"></span>
@@ -50,13 +52,10 @@
         var $name = $('#name');
         var $nameForm = $('#name-form');
         var $messageForm = $('#message-form');
-        var $messageList = $('#message-list');
-        var $loadingOverlay = $('#loading-overlay');
-        var $loadingMessage = $('#loading-message');
 
         $mainAppView.hide();
 
-        var uiController = new UiController($messageList, $loadingOverlay, $loadingMessage);
+        var uiController = new UiController();
         var app = new ChatApp(uiController);
 
         uiController.showLoadingOverlay('Loading...');
@@ -79,6 +78,15 @@
             $messageText.val('');
             $messageText.focus();
         });
+
+        $messageText.on('keydown', _.throttle(function () {
+            app.sendTypingNotification(true);
+        }, 5000));
+
+        $messageText.on('keyup', _.debounce(function () {
+            app.sendTypingNotification(false);
+        }, 5000));
+
     });
 </script>
 

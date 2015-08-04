@@ -1,9 +1,6 @@
 (function (window) {
     "use strict";
 
-    var noop = function () {
-
-    };
     var Constants = {
         MESSAGE_NAME: 'chat-message',
         ABLY_CHANNEL_NAME: 'mobile:chat',
@@ -15,10 +12,13 @@
 
         function prepareAblyInstance(successCallback) {
             var ably = new Ably.Realtime({
-                    authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
-                    transports: ['web_socket']
-                }),
-                successCb = successCallback || noop;
+                authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
+                transports: ['web_socket'],
+                log: {
+                    level: 4
+                }
+            });
+            var successCb = successCallback || _.noop;
 
             ably.connection.on('connected', function (stateChange) {
                 if (stateChange && stateChange.reason) {
@@ -44,6 +44,7 @@
 
                     ablyChannel.presence.on('enter', getMembersAndCallUiController);
                     ablyChannel.presence.on('leave', getMembersAndCallUiController);
+                    ablyChannel.presence.on('update', getMembersAndCallUiController);
 
                     app.ablyChannel = ablyChannel;
                     app.ably = ably;
@@ -113,6 +114,10 @@
 
                     getMessagesHistory(getPresenceHistory);
                 });
+            },
+            sendTypingNotification: function (isTyping) {
+                isTyping = !!isTyping;
+                app.ablyChannel.presence.updateClient(app.name, {isTyping: isTyping});
             }
         };
     }

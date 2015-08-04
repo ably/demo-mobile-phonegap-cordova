@@ -1,11 +1,43 @@
-(function(window) {
+(function (window) {
     "use strict";
 
-    function UiController($messageList, $loadingOverlay, $loadingMessage) {
+    // Formats a Date object into a "hours:minutes:seconds" time format.
+    function formatDateAsLocalTime(date) {
+        return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    }
+
+    // Creates a string showing which members are currently typing.
+    function formatTypingNotification(typingMembers) {
+        // Nobody is actually typing
+        if (!typingMembers || typingMembers.length == 0) {
+            return '';
+        }
+
+        // Single user: "Alice is typing"
+        if (typingMembers.length == 1) {
+            return typingMembers[0] + ' is typing';
+        }
+
+        // More than one: "Alice, Bob, Carol are typing"
+        if (typingMembers.length < 4) {
+            return typingMembers.join(', ') + ' are typing';
+        }
+
+        // "Alice, Bob, Carol and 3 others are typing"
+        return typingMembers.join(', ') + ' and ' + (typingMembers.length - 3) + ' others are typing.';
+    }
+
+    function UiController() {
+        var $messageList = $('#message-list');
+        var $loadingOverlay = $('#loading-overlay');
+        var $loadingMessage = $('#loading-message');
+        var $membersCountLozenge = $('#main-app-view').find('.members-count');
+        var $membersTypingNotification = $('#members-typing-indication');
+
         function showMessage(message) {
             var $li = $('<li></li>');
             $li.addClass('chat-message');
-            $li.html('[' + new Date(message.timestamp).toISOString() + '] '
+            $li.html('[' + formatDateAsLocalTime(new Date(message.timestamp)) + '] '
                 + message.name
                 + ': '
                 + message.text);
@@ -21,7 +53,17 @@
 
         function updateMembers(members) {
             members = members || [];
-            $('#main-app-view .members-count').text(members.length);
+
+            // Typing members are those who have 'isTyping' set to true in their presence data.
+            var typingMembersNames = members.filter(function (member) {
+                return member.data.isTyping;
+            }).map(function (member) {
+                return member.clientId;
+            });
+            var text = formatTypingNotification(typingMembersNames);
+
+            $membersCountLozenge.text(members.length);
+            $membersTypingNotification.text(text);
         }
 
         return {
@@ -44,6 +86,13 @@
             },
             onPresence: function (presenceMessage, members) {
                 var actionText;
+                updateMembers(members);
+
+                // Updates like "xxxx is typing" are handled in updateMembers, but not displayed like 'entered' and 'left'
+                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {
+                    return;
+                }
+
                 if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                     actionText = 'entered';
                 }
@@ -52,7 +101,6 @@
                     actionText = 'left';
                 }
 
-                updateMembers(members);
                 showPresence({name: presenceMessage.clientId, action: actionText});
             },
 

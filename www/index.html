@@ -48,6 +48,7 @@
 <script>
     $(document).ready(function () {
         var $mainAppView = $('#main-app-view');
+        var $enterNameView = $('#enter-name-view');
         var $messageText = $('#message-text');
         var $name = $('#name');
         var $nameForm = $('#name-form');
@@ -58,7 +59,7 @@
         var uiController = new UiController();
         var app = new ChatApp(uiController);
 
-        uiController.showLoadingOverlay('Loading...');
+        uiController.showLoadingOverlay();
         app.initialize(function () {
             uiController.hideLoadingOverlay();
         });
@@ -66,10 +67,11 @@
         $nameForm.on('submit', function (ev) {
             ev.preventDefault();
 
-            $('#enter-name-view').hide();
-            $('#main-app-view').show();
+            $enterNameView.hide();
+            $mainAppView.show();
 
-            app.joinChannel($name.val());
+            uiController.showLoadingOverlay();
+            app.joinChannel($name.val(), uiController.hideLoadingOverlay);
         });
 
         $messageForm.on('submit', function (ev) {

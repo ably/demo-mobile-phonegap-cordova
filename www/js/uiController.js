@@ -3,7 +3,11 @@
 
     // Formats a Date object into a "hours:minutes:seconds" time format.
     function formatDateAsLocalTime(date) {
-        return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        function padZeroes(n) {
+            return n < 10 ? '0' + n : n
+        }
+
+        return padZeroes(date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
     }
 
     // Creates a string showing which members are currently typing.
@@ -28,6 +32,7 @@
     }
 
     function UiController() {
+        var controller = this;
         var $messageList = $('#message-list');
         var $loadingOverlay = $('#loading-overlay');
         var $loadingMessage = $('#loading-message');
@@ -47,7 +52,7 @@
         function showPresence(presence) {
             var $li = $('<li></li>');
             $li.addClass('presence-message');
-            $li.html(presence.name + ' has ' + presence.action + ' the channel.');
+            $li.html('[' + formatDateAsLocalTime(new Date(presence.timestamp)) + '] ' + presence.name + ' has ' + presence.action + ' the channel.');
             $messageList.append($li);
         }
 
@@ -56,7 +61,7 @@
 
             // Typing members are those who have 'isTyping' set to true in their presence data.
             var typingMembersNames = members.filter(function (member) {
-                return member.data.isTyping;
+                return member && member.data && member.data.isTyping;
             }).map(function (member) {
                 return member.clientId;
             });
@@ -82,6 +87,8 @@
                     else {
                         alert(JSON.stringify(err));
                     }
+
+                    controller.hideLoadingOverlay();
                 }
             },
             onPresence: function (presenceMessage, members) {
@@ -101,10 +108,15 @@
                     actionText = 'left';
                 }
 
-                showPresence({name: presenceMessage.clientId, action: actionText});
+                showPresence({
+                    name: presenceMessage.clientId,
+                    action: actionText,
+                    timestamp: presenceMessage.timestamp
+                });
             },
 
             showLoadingOverlay: function (message) {
+                message = message || 'Loading...';
                 $loadingOverlay.show();
                 if (message) {
                     $loadingMessage.text(message);

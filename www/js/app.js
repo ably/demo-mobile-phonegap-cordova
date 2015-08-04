@@ -10,6 +10,39 @@
     function ChatApp(uiController) {
         var app = this;
 
+        function getMembersAndCallUiController(presenceMessage) {
+            app.ablyChannel.presence.get(function (clientId, members) {
+                uiController.onPresence(presenceMessage, members);
+            });
+        }
+
+        function displayHistory(messages, presence) {
+            // Combine both chat messages and presence messages into one array, sorted by timestamp.
+            // Then enumerate and for each item call the appropriate UiController method.
+            var index;
+            var currentItem;
+            var all = messages.concat(presence);
+
+            // Sort
+            all.sort(function (a, b) {
+                return a.timestamp < b.timestamp ? -1
+                    : a.timestamp == b.timestamp ? 0
+                    : 1;
+            });
+
+            for (index = 0; index < all.length; index++) {
+                currentItem = all[index];
+
+                // Simple check to see if the current item is chat message or a presence message
+                if (_.contains(messages, currentItem)) {
+                    uiController.onMessageReceived(currentItem);
+                }
+                else if (_.contains(presence, currentItem)) {
+                    uiController.onPresence(currentItem);
+                }
+            }
+        }
+
         function prepareAblyInstance(successCallback) {
             var ably = new Ably.Realtime({
                 authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
@@ -28,26 +61,15 @@
 
                 var ablyChannel = ably.channels.get(Constants.ABLY_CHANNEL_NAME);
 
+                app.ablyChannel = ablyChannel;
+                app.ably = ably;
+
                 ablyChannel.attach(function (err) {
-                    function getMembersAndCallUiController(presenceMessage) {
-                        ablyChannel.presence.get(function (clientId, members) {
-                            uiController.onPresence(presenceMessage, members);
-                        });
-                    }
 
                     if (err) {
                         uiController.onError(err);
                         return;
                     }
-
-                    ablyChannel.subscribe(Constants.MESSAGE_NAME, uiController.onMessageReceived);
-
-                    ablyChannel.presence.on('enter', getMembersAndCallUiController);
-                    ablyChannel.presence.on('leave', getMembersAndCallUiController);
-                    ablyChannel.presence.on('update', getMembersAndCallUiController);
-
-                    app.ablyChannel = ablyChannel;
-                    app.ably = ably;
 
                     successCb();
                 });
@@ -57,11 +79,7 @@
         }
 
         function pushPresence(callback) {
-            try {
-                app.ablyChannel.presence.enterClient(app.name, {}, callback);
-            } catch (error) {
-                callback(error);
-            }
+            app.ablyChannel.presence.enterClient(app.name, callback);
         }
 
         function getMessagesHistory(callback) {
@@ -71,26 +89,29 @@
             };
 
             app.ablyChannel.history(params, function (err, result) {
-                var messageIndex = 0,
-                    currentMessage = {};
                 if (err) {
                     uiController.onError(err);
                     return;
                 }
 
-                /* Loop over all messages in the history and trigger uiController's .onMessageReceived() for each one */
-                if (result && result.items && result.items.length > 0) {
-                    for (messageIndex = result.items.length - 1; messageIndex >= 0; messageIndex--) {
-                        currentMessage = result.items[messageIndex];
-                        uiController.onMessageReceived(currentMessage);
-                    }
-                }
-
-                callback();
+                callback(result.items);
             });
         }
 
-        function getPresenceHistory() {
+        function getPresenceHistory(callback) {
+            var params = {
+                direction: 'backwards',
+                limit: Constants.HISTORY_MESSAGES_LIMIT
+            };
+
+            app.ablyChannel.presence.history(params, function (err, messages) {
+                if (err) {
+                    uiController.onError(err);
+                    return;
+                }
+
+                callback(messages.items);
+            })
         }
 
         return {
@@ -103,15 +124,29 @@
 
                 app.ablyChannel.publish(Constants.MESSAGE_NAME, messageData, uiController.onError);
             },
-            joinChannel: function (name) {
+            joinChannel: function (name, successCallback) {
+                var channel = app.ablyChannel;
+                var presence = channel.presence;
                 app.name = name;
-                pushPresence(function (err) {
-                    if (err) {
-                        uiController.onError(err);
-                        return;
-                    }
 
-                    getMessagesHistory(getPresenceHistory);
+                getMessagesHistory(function (messages) {
+                    getPresenceHistory(function (presences) {
+                        displayHistory(messages, presences);
+
+                        channel.subscribe(Constants.MESSAGE_NAME, uiController.onMessageReceived);
+                        presence.on('enter', getMembersAndCallUiController);
+                        presence.on('leave', getMembersAndCallUiController);
+                        presence.on('update', getMembersAndCallUiController);
+
+                        pushPresence(function (err) {
+                            if (err) {
+                                uiController.onError(err);
+                                return;
+                            }
+
+                            successCallback();
+                        });
+                    });
                 });
             },
             sendTypingNotification: function (isTyping) {

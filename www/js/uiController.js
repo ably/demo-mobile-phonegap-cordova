@@ -13,20 +13,33 @@
         var $membersListPopup = $('.members-list-popup');
 
         function showMessage(message) {
-            var $li = $('<li></li>');
-            $li.addClass('chat-message');
-            $li.html('[' + Utils.formatDateAsLocalTime(new Date(message.timestamp)) + '] '
-                + message.name
-                + ': '
-                + message.text);
+            var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
+            var $author = $('<span class="author">' + message.name + '</span>');
+            var $time = $('<div class="time">' + dateAsLocalTime + '</div>');
+            var $message = $('<div class="message">' + message.text + '</div>');
+            var $back = $('<div class="back"></div>');
+            $back.append($author, $time, $message);
+
+            var $li = $('<div class="message-bubble"></div>');
+            $li.append($back);
+
+            if(message.isReceived) {
+                $li.addClass('received');
+            }
+            else {
+                $li.addClass('send');
+            }
+
             $messageList.append($li);
         }
 
         function showPresence(presence) {
-            var $li = $('<li></li>');
-            $li.addClass('presence-message');
-            $li.html('[' + Utils.formatDateAsLocalTime(new Date(presence.timestamp)) + '] ' + presence.name + ' has ' + presence.action + ' the channel.');
-            $messageList.append($li);
+            var $text = $('<span class="text"></span>');
+            var $div = $('<div class="message-presence"></div>');
+            $text.html(presence.name + ' has ' + presence.action + ' the channel.');
+
+            $div.append($text);
+            $messageList.append($div);
         }
 
         function updateMembers(members) {
@@ -57,11 +70,12 @@
         }
 
         return {
-            onMessageReceived: function (message) {
+            onMessageReceived: function (message, isReceived) {
                 showMessage({
                     name: message.data.name,
                     text: message.data.text,
-                    timestamp: message.timestamp
+                    timestamp: message.timestamp,
+                    isReceived: isReceived
                 });
             },
             onError: function (err) {

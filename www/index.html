@@ -20,20 +20,20 @@
 
 <div id="enter-name-view">
     <form id="name-form">
-        <input type="text" placeholder="Name" id="name"/>
+        <input type="text" placeholder="Name" id="name" class="name-input"/>
         <input type="submit" id="submit-name" value="Submit"/>
     </form>
 </div>
 
 <div id="main-app-view" class="hidden">
 
-    <ul id="message-list">
+    <div id="message-list">
 
-    </ul>
+    </div>
 
     <span id="members-typing-indication"></span>
 
-    <div>
+    <div class="message-back">
         <a class="members-lozenge" href="javascript:void(0)">
             <img src="images/avatars.png" width="32"/>
             <span class="members-count"></span>
@@ -41,8 +41,8 @@
 
         <form id="message-form" action="#">
             <div class="chat-box">
-                <input type="text" id="message-text" placeholder="Message"/>
-                <input type="submit" id="submit-message" value="Submit"/>
+                <input type="text" id="message-text" class="message-input" placeholder="Message"/>
+                <input type="submit" id="submit-message" class="message-send" value="Submit"/>
             </div>
         </form>
     </div>
@@ -84,6 +84,11 @@
 
         $messageForm.on('submit', function (ev) {
             ev.preventDefault();
+
+            if($messageText.val().trim() === '') {
+                return;
+            }
+
             app.publishMessage($messageText.val());
             $messageText.val('');
             $messageText.focus();
@@ -91,7 +96,11 @@
             app.sendTypingNotification(false);
         });
 
-        $messageText.on('keydown', _.throttle(function () {
+        $messageText.on('keydown', _.throttle(function (e) {
+            if(e.keyCode == 13) {
+                return;
+            }
+
             app.sendTypingNotification(true);
         }, 5000));
 
@@ -105,7 +114,7 @@
 
         $(window).unload(function () {
             app.disconnect();
-        })
+        });
     });
 </script>
 

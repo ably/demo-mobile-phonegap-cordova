@@ -35,7 +35,7 @@
 
                 // Simple check to see if the current item is chat message or a presence message
                 if (_.contains(messages, currentItem)) {
-                    uiController.onMessageReceived(currentItem);
+                    uiController.onMessageReceived(currentItem, currentItem.data.name !== app.name);
                 }
                 else if (_.contains(presence, currentItem)) {
                     uiController.onPresence(currentItem);
@@ -133,7 +133,11 @@
                     getPresenceHistory(function (presences) {
                         displayHistory(messages, presences);
 
-                        channel.subscribe(Constants.MESSAGE_NAME, uiController.onMessageReceived);
+                        channel.subscribe(Constants.MESSAGE_NAME, function (message) {
+                            var isReceived = message.data.name != app.name;
+                            uiController.onMessageReceived(message, isReceived);
+                        });
+
                         presence.on('enter', getMembersAndCallUiController);
                         presence.on('leave', getMembersAndCallUiController);
                         presence.on('update', getMembersAndCallUiController);

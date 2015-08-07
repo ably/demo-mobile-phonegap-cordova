@@ -102,6 +102,10 @@
         $membersLozenge.on('click', function () {
             $membersListPopup.show();
         });
+
+        $(window).unload(function () {
+            app.disconnect();
+        })
     });
 </script>
 

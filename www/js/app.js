@@ -149,6 +149,10 @@
                     });
                 });
             },
+            disconnect: function () {
+                app.ablyChannel.presence.leaveClient(app.name);
+                app.ably.close();
+            },
             sendTypingNotification: function (isTyping) {
                 isTyping = !!isTyping;
                 app.ablyChannel.presence.updateClient(app.name, {isTyping: isTyping});

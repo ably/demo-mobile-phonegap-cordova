@@ -1,48 +1,21 @@
 (function (window) {
     "use strict";
 
-    // Formats a Date object into a "hours:minutes:seconds" time format.
-    function formatDateAsLocalTime(date) {
-        function padZeroes(n) {
-            return n < 10 ? '0' + n : n
-        }
-
-        return padZeroes(date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
-    }
-
-    // Creates a string showing which members are currently typing.
-    function formatTypingNotification(typingMembers) {
-        // Nobody is actually typing
-        if (!typingMembers || typingMembers.length == 0) {
-            return '';
-        }
-
-        // Single user: "Alice is typing"
-        if (typingMembers.length == 1) {
-            return typingMembers[0] + ' is typing';
-        }
-
-        // More than one: "Alice, Bob, Carol are typing"
-        if (typingMembers.length < 4) {
-            return typingMembers.join(', ') + ' are typing';
-        }
-
-        // "Alice, Bob, Carol and 3 others are typing"
-        return typingMembers.join(', ') + ' and ' + (typingMembers.length - 3) + ' others are typing.';
-    }
-
     function UiController() {
         var controller = this;
         var $messageList = $('#message-list');
         var $loadingOverlay = $('#loading-overlay');
         var $loadingMessage = $('#loading-message');
+        var $messageText = $('#message-text');
         var $membersCountLozenge = $('#main-app-view').find('.members-count');
         var $membersTypingNotification = $('#members-typing-indication');
+        var $membersList = $('.members-list');
+        var $membersListPopup = $('.members-list-popup');
 
         function showMessage(message) {
             var $li = $('<li></li>');
             $li.addClass('chat-message');
-            $li.html('[' + formatDateAsLocalTime(new Date(message.timestamp)) + '] '
+            $li.html('[' + Utils.formatDateAsLocalTime(new Date(message.timestamp)) + '] '
                 + message.name
                 + ': '
                 + message.text);
@@ -52,7 +25,7 @@
         function showPresence(presence) {
             var $li = $('<li></li>');
             $li.addClass('presence-message');
-            $li.html('[' + formatDateAsLocalTime(new Date(presence.timestamp)) + '] ' + presence.name + ' has ' + presence.action + ' the channel.');
+            $li.html('[' + Utils.formatDateAsLocalTime(new Date(presence.timestamp)) + '] ' + presence.name + ' has ' + presence.action + ' the channel.');
             $messageList.append($li);
         }
 
@@ -65,10 +38,22 @@
             }).map(function (member) {
                 return member.clientId;
             });
-            var text = formatTypingNotification(typingMembersNames);
+            var text = Utils.formatTypingNotification(typingMembersNames);
 
             $membersCountLozenge.text(members.length);
             $membersTypingNotification.text(text);
+
+            $membersList.html('').append(members.map(function (m) {
+                var memberName = m.clientId;
+                var $li = $('<li><a href="javascript:void(0)">' + memberName + '</a></li>');
+                $li.on('click', function () {
+                    $messageText.val($messageText.val() + '@' + memberName + ' ');
+                    $membersListPopup.hide();
+                    $messageText.focus();
+                });
+
+                return $li;
+            }));
         }
 
         return {

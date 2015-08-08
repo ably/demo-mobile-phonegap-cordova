@@ -23,7 +23,7 @@
             var $li = $('<div class="message-bubble"></div>');
             $li.append($back);
 
-            if(message.isReceived) {
+            if (message.isReceived) {
                 $li.addClass('received');
             }
             else {
@@ -42,13 +42,17 @@
             $messageList.append($div);
         }
 
-        function updateMembers(members) {
+        function updateMembers(members, userClientId) {
             members = members || [];
 
-            // Typing members are those who have 'isTyping' set to true in their presence data.
-            var typingMembersNames = members.filter(function (member) {
-                return member && member.data && member.data.isTyping;
-            }).map(function (member) {
+            // Typing members are users (except the current one) who have 'isTyping' set to true in their presence data.
+            var typingMembers = members.filter(function (member) {
+                return member &&
+                    member.data &&
+                    member.data.isTyping &&
+                    member.clientId !== userClientId;
+            });
+            var typingMembersNames = typingMembers.map(function (member) {
                 return member.clientId;
             });
             var text = Utils.formatTypingNotification(typingMembersNames);
@@ -90,9 +94,9 @@
                     controller.hideLoadingOverlay();
                 }
             },
-            onPresence: function (presenceMessage, members) {
+            onPresence: function (presenceMessage, members, userClientId) {
                 var actionText;
-                updateMembers(members);
+                updateMembers(members, userClientId);
 
                 // Updates like "xxxx is typing" are handled in updateMembers, but not displayed like 'entered' and 'left'
                 if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {

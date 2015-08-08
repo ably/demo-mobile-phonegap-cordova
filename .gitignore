@@ -1,3 +1,5 @@
 *.iml
 .idea/
 platforms/
+plugins/
+!plugins/fetch.json

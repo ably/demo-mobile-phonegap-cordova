@@ -10,6 +10,8 @@
     function ChatApp(uiController) {
         var app = this;
 
+        var isUserCurrentlyTyping = false;
+
         function getMembersAndCallUiController(presenceMessage) {
             app.ablyChannel.presence.get(function (clientId, members) {
                 uiController.onPresence(presenceMessage, members);
@@ -157,9 +159,14 @@
                 app.ablyChannel.presence.leaveClient(app.name);
                 app.ably.close();
             },
-            sendTypingNotification: function (isTyping) {
-                isTyping = !!isTyping;
-                app.ablyChannel.presence.updateClient(app.name, {isTyping: isTyping});
+            sendTypingNotification: function (typing) {
+                // Don't send a "typing" notification if user is already typing
+                if (isUserCurrentlyTyping && typing) {
+                    return;
+                }
+
+                app.ablyChannel.presence.updateClient(app.name, {isTyping: typing});
+                isUserCurrentlyTyping = typing;
             }
         };
     }

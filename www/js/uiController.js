@@ -36,7 +36,7 @@
         function showPresence(presence) {
             var $text = $('<span class="text"></span>');
             var $div = $('<div class="message-presence"></div>');
-            $text.html(presence.name + ' has ' + presence.action + ' the channel.');
+            $text.html(presence.name + ' has ' + presence.action + ' the channel');
 
             $div.append($text);
             $messageList.append($div);

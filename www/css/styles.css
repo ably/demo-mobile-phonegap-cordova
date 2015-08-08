@@ -22,6 +22,8 @@
 
 #message-form {
     display: inline-block;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .members-list-popup {
@@ -77,6 +79,9 @@ body > div {
     border-top: 1px solid #CCCCCC;
     background-color: #EEEEEE;
     overflow: scroll;
+    position:fixed;
+    bottom: 0;
+    width: 100%
 }
 .message-input {
     border-radius: 7px;
@@ -85,6 +90,8 @@ body > div {
     padding: 6px 5px 6px 5px;
     -webkit-appearance: none;
     -moz-appearance: none;
+
+    width: 90%;
 }
 .message-send {
     text-align: center;

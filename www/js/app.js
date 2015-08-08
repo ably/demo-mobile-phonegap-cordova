@@ -14,7 +14,7 @@
 
         function getMembersAndCallUiController(presenceMessage) {
             app.ablyChannel.presence.get(function (clientId, members) {
-                uiController.onPresence(presenceMessage, members);
+                uiController.onPresence(presenceMessage, members, app.name);
             });
         }
 

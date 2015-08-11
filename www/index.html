@@ -49,6 +49,9 @@
 </div>
 
 <div class="hidden members-list-popup">
+    <a class="dialog-close" id="dialog-close"></a>
+    <h1>Members present</h1>
+    <h5>Click a user to @ mention them</h5>
     <ul class="members-list">
     </ul>
 </div>
@@ -63,6 +66,7 @@
         var $messageForm = $('#message-form');
         var $membersLozenge = $mainAppView.find('.members-lozenge');
         var $membersListPopup = $('.members-list-popup');
+        var $dialogCloseButton = $('#dialog-close');
 
         var uiController = new UiController();
         var app = new ChatApp(uiController);
@@ -110,6 +114,10 @@
 
         $membersLozenge.on('click', function () {
             $membersListPopup.show();
+        });
+
+        $dialogCloseButton.on('click', function () {
+           $membersListPopup.hide();
         });
 
         $(window).unload(function () {

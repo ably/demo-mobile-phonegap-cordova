@@ -6,6 +6,8 @@
         var $messageList = $('#message-list');
         var $loadingOverlay = $('#loading-overlay');
         var $loadingMessage = $('#loading-message');
+        var $messageFormInputs = $('#message-form :input');
+        var $connectionInfo = $('#connection-info');
         var $messageText = $('#message-text');
         var $membersCountLozenge = $('#main-app-view').find('.members-count');
         var $membersTypingNotification = $('#members-typing-indication');
@@ -73,6 +75,17 @@
             }));
         }
 
+        function onConnectionChange (state) {
+            if (state.current === 'disconnected' || state.current === 'suspended') {
+                $messageFormInputs.prop('disabled', true);
+                $connectionInfo.text(state.reason.message);
+            }
+            else if (state.current === 'connected') {
+                $messageFormInputs.prop('disabled', false);
+                $connectionInfo.text('');
+            }
+        }
+
         return {
             onMessageReceived: function (message, isReceived) {
                 showMessage({
@@ -117,6 +130,7 @@
                     timestamp: presenceMessage.timestamp
                 });
             },
+            onConnectionChange: onConnectionChange,
 
             showLoadingOverlay: function (message) {
                 message = message || 'Loading...';

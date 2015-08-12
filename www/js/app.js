@@ -55,12 +55,7 @@
             });
             var successCb = successCallback || _.noop;
 
-            ably.connection.on('connected', function (stateChange) {
-                if (stateChange && stateChange.reason) {
-                    uiController.onError(stateChange.reason);
-                    return;
-                }
-
+            var connectedHandler = function (stateChange) {
                 var ablyChannel = ably.channels.get(Constants.ABLY_CHANNEL_NAME);
 
                 app.ablyChannel = ablyChannel;
@@ -73,9 +68,16 @@
                         return;
                     }
 
+                    ably.connection.off('connected', connectedHandler);
                     successCb();
                 });
-            });
+            };
+
+            ably.connection.on('connected', connectedHandler);
+
+            ably.connection.on('connected', uiController.onConnectionChange);
+            ably.connection.on('disconnected', uiController.onConnectionChange);
+            ably.connection.on('suspended', uiController.onConnectionChange);
 
             ably.connection.on('failed', uiController.onError);
         }

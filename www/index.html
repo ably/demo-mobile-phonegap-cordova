@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src *; media-src *; script-src * 'unsafe-inline'">
     <title>Ably.io sample chat application</title>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 
@@ -11,6 +12,8 @@
     <script src="js/app.js"></script>
     <script src="js/uiController.js"></script>
     <script src="js/utils.js"></script>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
 </head>
 <body>
 
@@ -51,6 +54,7 @@
 
 <div class="hidden members-list-popup">
     <a class="dialog-close" id="dialog-close"></a>
+
     <h1>Members present</h1>
     <h5>Click a user to @ mention them</h5>
     <ul class="members-list">
@@ -73,9 +77,23 @@
         var app = new ChatApp(uiController);
 
         uiController.showLoadingOverlay();
-        app.initialize(function () {
-            uiController.hideLoadingOverlay();
+
+        document.addEventListener('deviceready', function () {
+
+
+            app.initialize(function () {
+                uiController.hideLoadingOverlay();
+
+                document.addEventListener('pause', function () {
+                    app.disconnect();
+                });
+
+                document.addEventListener('resume', function () {
+                    app.connect();
+                });
+            });
         });
+
 
         $nameForm.on('submit', function (ev) {
             ev.preventDefault();
@@ -90,7 +108,7 @@
         $messageForm.on('submit', function (ev) {
             ev.preventDefault();
 
-            if($messageText.val().trim() === '') {
+            if ($messageText.val().trim() === '') {
                 return;
             }
 
@@ -102,7 +120,7 @@
         });
 
         $messageText.on('keydown', function (e) {
-            if(e.keyCode == 13) {
+            if (e.keyCode == 13) {
                 return;
             }
 
@@ -118,7 +136,7 @@
         });
 
         $dialogCloseButton.on('click', function () {
-           $membersListPopup.hide();
+            $membersListPopup.hide();
         });
 
         $(window).unload(function () {

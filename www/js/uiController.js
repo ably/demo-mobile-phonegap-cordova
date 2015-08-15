@@ -14,6 +14,19 @@
         var $membersList = $('.members-list');
         var $membersListPopup = $('.members-list-popup');
 
+        function showLoadingOverlay(message) {
+            message = message || 'Loading...';
+            $loadingOverlay.show();
+            if (message) {
+                $loadingMessage.text(message);
+            }
+        }
+
+        function hideLoadingOverlay() {
+            $loadingOverlay.hide();
+            $loadingMessage.text('');
+        }
+
         function showMessage(message) {
             var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
             var $author = $('<span class="author">' + message.name + '</span>');
@@ -75,7 +88,7 @@
             }));
         }
 
-        function onConnectionChange (state) {
+        function onConnectionChange(state) {
             if (state.current === 'disconnected' || state.current === 'suspended') {
                 $messageFormInputs.prop('disabled', true);
                 $connectionInfo.text(state.reason.message);
@@ -83,68 +96,64 @@
             else if (state.current === 'connected') {
                 $messageFormInputs.prop('disabled', false);
                 $connectionInfo.text('');
+
+                // hide overlay in case the app was resumed and has been connecting
+                hideLoadingOverlay();
             }
         }
 
-        return {
-            onMessageReceived: function (message, isReceived) {
-                showMessage({
-                    name: message.data.name,
-                    text: message.data.text,
-                    timestamp: message.timestamp,
-                    isReceived: isReceived
-                });
-            },
-            onError: function (err) {
-                if (err) {
-                    if (err.message) {
-                        alert(err.message);
-                    }
-                    else {
-                        alert(JSON.stringify(err));
-                    }
-
-                    controller.hideLoadingOverlay();
+        this.onMessageReceived = function (message, isReceived) {
+            showMessage({
+                name: message.data.name,
+                text: message.data.text,
+                timestamp: message.timestamp,
+                isReceived: isReceived
+            });
+        };
+        this.onError = function (err) {
+            if (err) {
+                if (err.message) {
+                    alert(err.message);
                 }
-            },
-            onPresence: function (presenceMessage, members, userClientId) {
-                var actionText;
-                updateMembers(members, userClientId);
-
-                // Updates like "xxxx is typing" are handled in updateMembers, but not displayed like 'entered' and 'left'
-                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {
-                    return;
+                else {
+                    alert(JSON.stringify(err));
                 }
 
-                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
-                    actionText = 'entered';
-                }
-
-                if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
-                    actionText = 'left';
-                }
-
-                showPresence({
-                    name: presenceMessage.clientId,
-                    action: actionText,
-                    timestamp: presenceMessage.timestamp
-                });
-            },
-            onConnectionChange: onConnectionChange,
-
-            showLoadingOverlay: function (message) {
-                message = message || 'Loading...';
-                $loadingOverlay.show();
-                if (message) {
-                    $loadingMessage.text(message);
-                }
-            },
-
-            hideLoadingOverlay: function () {
-                $loadingOverlay.hide();
-                $loadingMessage.text('');
+                controller.hideLoadingOverlay();
             }
-        }
+        };
+
+        this.onPresence = function (presenceMessage, members, userClientId) {
+            var actionText;
+            updateMembers(members, userClientId);
+
+            // Updates like "xxxx is typing" are handled in updateMembers, but not displayed like 'entered' and 'left'
+            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {
+                return;
+            }
+
+            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
+                actionText = 'entered';
+            }
+
+            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
+                actionText = 'left';
+            }
+
+            showPresence({
+                name: presenceMessage.clientId,
+                action: actionText,
+                timestamp: presenceMessage.timestamp
+            });
+        };
+
+        this.resetMessages = function () {
+            $messageList.empty();
+        };
+
+        this.onConnectionChange = onConnectionChange;
+        this.showLoadingOverlay = showLoadingOverlay;
+        this.hideLoadingOverlay = hideLoadingOverlay;
     }
 
     window.UiController = UiController;

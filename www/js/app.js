@@ -32,6 +32,8 @@
                     : 1;
             });
 
+            uiController.resetMessages();
+
             for (index = 0; index < all.length; index++) {
                 currentItem = all[index];
 
@@ -118,30 +120,52 @@
             })
         }
 
-        return {
-            initialize: prepareAblyInstance,
-            publishMessage: function (message) {
-                var messageData = {
-                    text: message,
-                    name: app.name
-                };
+        function messageHandler(message) {
+            var isReceived = message.data.name != app.name;
+            uiController.onMessageReceived(message, isReceived);
+        }
 
-                app.ablyChannel.publish(Constants.MESSAGE_NAME, messageData, uiController.onError);
-            },
-            joinChannel: function (name, successCallback) {
-                var channel = app.ablyChannel;
-                var presence = channel.presence;
-                app.name = name;
+        this.initialize = prepareAblyInstance;
+        this.publishMessage = function (message) {
+            var messageData = {
+                text: message,
+                name: app.name
+            };
+
+            uiController.showLoadingOverlay('Sending...');
+
+            app.ablyChannel.publish(Constants.MESSAGE_NAME, messageData, function (err) {
+                if (err) {
+                    uiController.onError(err);
+                    return;
+                }
+
+                uiController.hideLoadingOverlay();
+            });
+        };
+        this.joinChannel = function (name, successCallback) {
+            var channel = app.ablyChannel;
+            var presence = channel.presence;
+
+            app.name = name;
+
+            // unsubscribe from events subscribed in previous joinChannel() calls
+            channel.unsubscribe(Constants.MESSAGE_NAME, messageHandler);
+            presence.off('enter', getMembersAndCallUiController);
+            presence.off('leave', getMembersAndCallUiController);
+            presence.off('update', getMembersAndCallUiController);
+
+            channel.attach(function (e) {
+                if (e) {
+                    uiController.onError(e);
+                    return;
+                }
 
                 getMessagesHistory(function (messages) {
                     getPresenceHistory(function (presences) {
                         displayHistory(messages, presences);
 
-                        channel.subscribe(Constants.MESSAGE_NAME, function (message) {
-                            var isReceived = message.data.name != app.name;
-                            uiController.onMessageReceived(message, isReceived);
-                        });
-
+                        channel.subscribe(Constants.MESSAGE_NAME, messageHandler);
                         presence.on('enter', getMembersAndCallUiController);
                         presence.on('leave', getMembersAndCallUiController);
                         presence.on('update', getMembersAndCallUiController);
@@ -156,20 +180,44 @@
                         });
                     });
                 });
-            },
-            disconnect: function () {
-                app.ablyChannel.presence.leaveClient(app.name);
-                app.ably.close();
-            },
-            sendTypingNotification: function (typing) {
-                // Don't send a "typing" notification if user is already typing
-                if (isUserCurrentlyTyping && typing) {
-                    return;
-                }
+            });
+        };
 
-                app.ablyChannel.presence.updateClient(app.name, {isTyping: typing});
-                isUserCurrentlyTyping = typing;
+        this.connect = function () {
+            uiController.showLoadingOverlay('Connecting...');
+
+            function onConnected() {
+                app.joinChannel(app.name, uiController.hideLoadingOverlay);
+                app.ably.connection.off('connected', onConnected);
             }
+
+            app.ably.connection.on('connected', onConnected);
+            app.ably.connection.connect();
+        };
+
+        this.disconnect = function () {
+            if (!app.ably || !app.ably.connection || !app.ablyChannel) {
+                return;
+            }
+
+            app.ablyChannel.presence.leaveClient(app.name, function () {
+                app.ablyChannel.detach(function () {
+                    console.log('detached channel');
+                    app.ably.connection.close(function () {
+                        console.log('closed connection');
+                    });
+                });
+            });
+        };
+
+        this.sendTypingNotification = function (typing) {
+            // Don't send a "typing" notification if user is already typing
+            if (isUserCurrentlyTyping && typing) {
+                return;
+            }
+
+            app.ablyChannel.presence.updateClient(app.name, {isTyping: typing});
+            isUserCurrentlyTyping = typing;
         };
     }
 

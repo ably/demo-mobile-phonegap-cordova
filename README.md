@@ -11,7 +11,6 @@ This Phonegap / Cordova demo uses the Ably real-time message service and provide
 ## View demo on a mobile device
 
 * Make sure you have [Cordova Command-Line Interface 5.1.1+](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface) installed. Usually done by `npm install -g cordova`.
-* Clone the repository
 * Install [cordova-plugin-whitelist](https://github.com/apache/cordova-plugin-whitelist) by running `cordova plugin add cordova-plugin-whitelist` in the root folder of the project.
 * [Add](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%20Command-Line%20Interface_add_platforms) the needed platforms (e.g. Android, iOS): `cordova platforms add android`.
 The cordova CLI tool should install the whitelist plugin for the specific platform.
@@ -27,9 +26,9 @@ http://ably-phonegap-cordova-demo.herokuapp.com/
 
 This static site demo is published to Heroku, there is no server-side code to run this demo.
 
-## Starting a local web server
-
-Ruby is required to run the simple static site web server.
-
-    $ bundle install
-    $ rackup
+## View demo locally in your browser
+Use the same steps as running on a mobile device, but use `browser` as a platform:
+* Make sure you have Cordova CLI installed.
+* Add cordova-plugin-whitelist.
+* Use `cordova platforms add browser` to add a `browser` platform.
+* Run in the browser: `cordova run browser`.

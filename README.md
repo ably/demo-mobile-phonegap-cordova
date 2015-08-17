@@ -24,7 +24,7 @@ You can use the [remote debugging feature](https://developer.chrome.com/devtools
 
 http://ably-phonegap-cordova-demo.herokuapp.com/
 
-This static site demo is published to Heroku, there is no server-side code to run this demo.
+This static site demo is published to Heroku, there is no server-side code to run this demo. If you want to run this app with a local static website server, you can use a generic Rack server by running `bundle && rackup`.
 
 ## View demo locally in your browser
 Use the same steps as running on a mobile device, but use `browser` as a platform:

@@ -1,6 +1,11 @@
 (function (window) {
     "use strict";
 
+    // Constructs an UiController, containing various functions related to the UI:
+    // * Triggering loading overlay
+    // * Displaying presence messages
+    // * Displaying chat messages
+    // * Displaying members count and mentioning
     function UiController() {
         var controller = this;
         var $messageList = $('#message-list');
@@ -27,6 +32,7 @@
             $loadingMessage.text('');
         }
 
+        // Creates a message bubble and displays it after the last bubble
         function showMessage(message) {
             var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
             var $author = $('<span class="author">' + message.name + '</span>');
@@ -38,6 +44,7 @@
             var $li = $('<div class="message-bubble"></div>');
             $li.append($back);
 
+            // Distinguish between own messages and received from somebody else
             if (message.isReceived) {
                 $li.addClass('received');
             }
@@ -48,6 +55,7 @@
             $messageList.append($li);
         }
 
+        // Displays a presence notification - e.g. 'user has entered/left the channel'
         function showPresence(presence) {
             var $text = $('<span class="text"></span>');
             var $div = $('<div class="message-presence"></div>');
@@ -57,6 +65,7 @@
             $messageList.append($div);
         }
 
+        // Updates the members count in the lozenge and their names in the 'Members' popup dialog
         function updateMembers(members, userClientId) {
             members = members || [];
 
@@ -75,6 +84,7 @@
             $membersCountLozenge.text(members.length);
             $membersTypingNotification.text(text);
 
+            // Clear the member list and replace it with a list with their names
             $membersList.html('').append(members.map(function (m) {
                 var memberName = m.clientId;
                 var $li = $('<li><a href="javascript:void(0)">' + memberName + '</a></li>');
@@ -88,6 +98,9 @@
             }));
         }
 
+        // Connection change handler
+        // * Disconnected: disable user input and display meaningful message
+        // * Connected: reenable input and hide message
         function onConnectionChange(state) {
             if (state.current === 'disconnected' || state.current === 'suspended') {
                 $messageFormInputs.prop('disabled', true);
@@ -102,6 +115,7 @@
             }
         }
 
+        // Receives an Ably message and shows it on the screen
         this.onMessageReceived = function (message, isReceived) {
             showMessage({
                 name: message.data.name,
@@ -110,6 +124,8 @@
                 isReceived: isReceived
             });
         };
+
+        // Generic error handler - alert()s an error, if one exists
         this.onError = function (err) {
             if (err) {
                 if (err.message) {
@@ -123,11 +139,13 @@
             }
         };
 
+        // Receives an Ably presence message and shows it on the screen
         this.onPresence = function (presenceMessage, members, userClientId) {
             var actionText;
             updateMembers(members, userClientId);
 
-            // Updates like "xxxx is typing" are handled in updateMembers, but not displayed like 'entered' and 'left'
+            // Updates like 'user is typing' are handled in updateMembers(), 
+            // but not displayed the same way as 'entered' and 'left'
             if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {
                 return;
             }
@@ -147,6 +165,7 @@
             });
         };
 
+        // Clears the messages list
         this.resetMessages = function () {
             $messageList.empty();
         };

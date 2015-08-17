@@ -78,9 +78,10 @@
 
         uiController.showLoadingOverlay();
 
+        // Cordova handlers for app pause and app resume
+        // * disconnect when moving to background
+        // * connect back to Ably when moving back to the foreground
         document.addEventListener('deviceready', function () {
-
-
             app.initialize(function () {
                 uiController.hideLoadingOverlay();
 
@@ -94,7 +95,7 @@
             });
         });
 
-
+        // Joins the channel using the name entered by the user
         $nameForm.on('submit', function (ev) {
             ev.preventDefault();
 
@@ -105,6 +106,7 @@
             app.joinChannel($name.val(), uiController.hideLoadingOverlay);
         });
 
+        // Sends the message typed by the user and stops the 'user is typing' notification
         $messageForm.on('submit', function (ev) {
             ev.preventDefault();
 
@@ -119,6 +121,7 @@
             app.sendTypingNotification(false);
         });
 
+        // Sends a 'user is typing' notification, except when completing a message via the Enter key.
         $messageText.on('keydown', function (e) {
             if (e.keyCode == 13) {
                 return;
@@ -127,6 +130,7 @@
             app.sendTypingNotification(true);
         });
 
+        // Sends a 'user has stopped typing' notification, after 2 seconds have passed since the last keystroke.
         $messageText.on('keyup', _.debounce(function () {
             app.sendTypingNotification(false);
         }, 2000));

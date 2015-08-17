@@ -1,6 +1,7 @@
 (function (window) {
     "use strict";
 
+    // Returns a string containing a zero-padded number
     function padZeroes(n) {
         return n < 10 ? '0' + n : n;
     }

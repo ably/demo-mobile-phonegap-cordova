@@ -7,10 +7,10 @@
     <title>Ably.io sample chat application</title>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 
-    <script src="http://cdn.ably.io/lib/ably.js"></script>
-    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="http://underscorejs.org/underscore.js"></script>
-    <script src="http://build.origami.ft.com/bundles/js?modules=fastclick"></script>
+    <script src="js/libs/ably.min.js"></script>
+    <script src="js/libs/jquery-2.1.4.min.js"></script>
+    <script src="js/libs/underscore-min.js"></script>
+    <script src="js/libs/fastclick.js"></script>
 
     <script src="js/app.js"></script>
     <script src="js/uiController.js"></script>
@@ -89,7 +89,7 @@
         var app = new ChatApp(uiController);
 
         uiController.showLoadingOverlay();
-        
+
         // Cordova handlers for app pause and app resume
         // * disconnect when moving to background
         // * connect back to Ably when moving back to the foreground

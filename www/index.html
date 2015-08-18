@@ -9,9 +9,20 @@
     <script src="http://cdn.ably.io/lib/ably.js"></script>
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
+    <script src="http://build.origami.ft.com/bundles/js?modules=fastclick"></script>
+    
     <script src="js/app.js"></script>
     <script src="js/uiController.js"></script>
     <script src="js/utils.js"></script>
+
+    <script>
+    var isCordovaApp = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+
+    if (isCordovaApp) {
+        var cordovaScriptTag = decodeURI('%3Cscript src="cordova.js"%3E%3C/script%3E');
+        document.write(cordovaScriptTag);
+    }
+    </script>
 </head>
 <body>
 
@@ -61,6 +72,7 @@
 
 <script>
     $(document).ready(function () {
+        Origami.fastclick(document.body);
         var $mainAppView = $('#main-app-view');
         var $enterNameView = $('#enter-name-view');
         var $messageText = $('#message-text');

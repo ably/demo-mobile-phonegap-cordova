@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src *; media-src *; script-src * 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src *; style-src *; media-src *; script-src * 'unsafe-inline'">
     <title>Ably.io sample chat application</title>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 
@@ -10,18 +11,19 @@
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
     <script src="http://build.origami.ft.com/bundles/js?modules=fastclick"></script>
-    
+
     <script src="js/app.js"></script>
     <script src="js/uiController.js"></script>
     <script src="js/utils.js"></script>
 
     <script>
-    var isCordovaApp = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+        // Load Cordova.js only if running on mobile
+        window.isRunningOnMobile = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
 
-    if (isCordovaApp) {
-        var cordovaScriptTag = decodeURI('%3Cscript src="cordova.js"%3E%3C/script%3E');
-        document.write(cordovaScriptTag);
-    }
+        if (window.isRunningOnMobile) {
+            var cordovaScriptTag = decodeURI('%3Cscript src="cordova.js"%3E%3C/script%3E');
+            document.write(cordovaScriptTag);
+        }
     </script>
 </head>
 <body>
@@ -87,11 +89,11 @@
         var app = new ChatApp(uiController);
 
         uiController.showLoadingOverlay();
-
+        
         // Cordova handlers for app pause and app resume
         // * disconnect when moving to background
         // * connect back to Ably when moving back to the foreground
-        document.addEventListener('deviceready', function () {
+        var initializeApp = function () {
             app.initialize(function () {
                 uiController.hideLoadingOverlay();
 
@@ -103,7 +105,14 @@
                     app.connect();
                 });
             });
-        });
+        };
+
+        if (window.isRunningOnMobile) {
+            document.addEventListener('deviceready', initializeApp);
+        }
+        else {
+            initializeApp();
+        }
 
         // Joins the channel using the name entered by the user
         $nameForm.on('submit', function (ev) {

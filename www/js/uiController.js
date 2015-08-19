@@ -145,9 +145,10 @@
                 else {
                     alert(JSON.stringify(err));
                 }
-
-                controller.hideLoadingOverlay();
+            } else {
+                alert("Oops, something has gone wrong. We recommend you restart this demo");
             }
+            controller.hideLoadingOverlay();
         };
 
         // Receives an Ably presence message and shows it on the screen

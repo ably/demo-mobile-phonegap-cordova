@@ -52,7 +52,18 @@
                 $li.addClass('send');
             }
 
-            $messageList.append($li);
+            appendToMessageList($li);
+        }
+
+        function appendToMessageList($elem) {
+            // Scroll new message into focus automatically if near the bottom
+            var shouldScrollAutomatically = $(window).scrollTop() + $(window).height() >= $(document).height() - 100;
+            $messageList.append($elem);
+            if (shouldScrollAutomatically) { window.setTimeout(scrollToBottom, 10); }
+        }
+
+        function scrollToBottom() {
+            $('html, body').scrollTop($(document).height() - $(window).height());
         }
 
         // Displays a presence notification - e.g. 'user has entered/left the channel'
@@ -62,7 +73,7 @@
             $text.html(presence.name + ' has ' + presence.action + ' the channel');
 
             $div.append($text);
-            $messageList.append($div);
+            appendToMessageList($div);
         }
 
         // Updates the members count in the lozenge and their names in the 'Members' popup dialog

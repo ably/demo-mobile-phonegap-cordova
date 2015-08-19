@@ -58,7 +58,7 @@
         }
 
         // Initiaizes the Ably instance
-        // * Connect using Token Request 
+        // * Connect using Token Request
         // * Attach channel
         // * Notify caller via success callback
         function prepareAblyInstance(successCallback) {

@@ -117,7 +117,7 @@
             channel.subscribe(view.showNewMessage);
             presence.on(membersChanged);
 
-            presence.enterClient(app.clientId, function(err) {
+            presence.enter(function(err) {
                 if (err) {
                     view.showError(err);
                     return;
@@ -185,7 +185,7 @@
                 return;
             }
 
-            app.ablyChannel.presence.updateClient(app.clientId, {isTyping: typing});
+            app.ablyChannel.presence.update({ isTyping: typing });
             isUserCurrentlyTyping = typing;
         };
     }

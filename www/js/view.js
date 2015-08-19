@@ -15,15 +15,12 @@ $(document).ready(function () {
     var uiController = new UiController();
     var app = new ChatApp(uiController);
 
-    uiController.showLoadingOverlay();
 
-    // Cordova handlers for app pause and app resume
-    // * disconnect when moving to background
-    // * connect back to Ably when moving back to the foreground
-    var initializeApp = function () {
-        app.initialize(function () {
-            uiController.hideLoadingOverlay();
-
+    if (window.isRunningOnMobile) {
+        // Cordova handlers for app pause and app resume
+        // * disconnect when moving to background
+        // * connect back to Ably when moving back to the foreground
+        document.addEventListener('deviceready', function() {
             document.addEventListener('pause', function () {
                 app.disconnect();
             });
@@ -32,16 +29,9 @@ $(document).ready(function () {
                 app.connect();
             });
         });
-    };
-
-    if (window.isRunningOnMobile) {
-        document.addEventListener('deviceready', initializeApp);
-    }
-    else {
-        initializeApp();
     }
 
-    // Joins the channel using the name entered by the user
+    // Joins the channel using the name (clientId) entered by the user
     $nameForm.on('submit', function (ev) {
         ev.preventDefault();
 
@@ -53,8 +43,8 @@ $(document).ready(function () {
         $enterNameView.hide();
         $mainAppView.show();
 
-        uiController.showLoadingOverlay();
-        app.joinChannel($name.val(), uiController.hideLoadingOverlay);
+        uiController.showLoadingOverlay('Connecting to Ably...');
+        app.initialize($name.val(), uiController.hideLoadingOverlay);
     });
 
     // Sends the message typed by the user and stops the 'user is typing' notification

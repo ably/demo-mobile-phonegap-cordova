@@ -35,7 +35,7 @@
         // Creates a message bubble and displays it after the last bubble
         function showMessage(message) {
             var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
-            var $author = $('<span class="author">' + message.name + '</span>');
+            var $author = $('<span class="author">' + message.clientId + '</span>');
             var $time = $('<div class="time">' + dateAsLocalTime + '</div>');
             var $message = $('<div class="message">' + message.text + '</div>');
             var $back = $('<div class="back"></div>');
@@ -126,7 +126,7 @@
         // Receives an Ably message and shows it on the screen
         this.onMessageReceived = function (message, isReceived) {
             showMessage({
-                name: message.data.name,
+                clientId: message.data.clientId,
                 text: message.data.text,
                 timestamp: message.timestamp,
                 isReceived: isReceived

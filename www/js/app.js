@@ -27,7 +27,7 @@
                 }
 
                 members = members.filter(function (member) {
-                    return member.clientId !== app.name;
+                    return member.clientId !== app.clientId;
                 });
                 uiController.onPresence(presenceMessage, members);
             });
@@ -57,7 +57,7 @@
 
                 // Simple check to see if the current item is chat message or a presence message
                 if (_.contains(messages, currentItem)) {
-                    uiController.onMessageReceived(currentItem, currentItem.data.name !== app.name);
+                    messageHandler(currentItem);
                 }
                 else if (_.contains(presence, currentItem)) {
                     uiController.onPresence(currentItem);
@@ -65,49 +65,34 @@
             }
         }
 
-        // Initiaizes the Ably instance
+        // Initializes an Ably realtime instance using the clientId
         // * Connect using Token Request
         // * Attach channel
         // * Notify caller via success callback
-        function prepareAblyInstance(successCallback) {
-            var ably = new Ably.Realtime({
+        function prepareAblyInstance(clientId, successCallback) {
+            app.clientId = clientId;
+
+            app.ably = new Ably.Realtime({
                 authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
+                clientId: clientId,
                 transports: ['web_socket'],
-                log: {
-                    level: 4
-                }
+                log: { level: 4 }
             });
-            var successCb = successCallback || _.noop;
 
-            var connectedHandler = function (stateChange) {
-                var ablyChannel = ably.channels.get(Constants.ABLY_CHANNEL_NAME);
+            app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
 
-                app.ablyChannel = ablyChannel;
-                app.ably = ably;
+            app.ably.connection.on('connected', uiController.onConnectionChange);
+            app.ably.connection.on('disconnected', uiController.onConnectionChange);
+            app.ably.connection.on('suspended', uiController.onConnectionChange);
 
-                ablyChannel.attach(function (err) {
+            app.ably.connection.on('failed', uiController.onError);
 
-                    if (err) {
-                        uiController.onError(err);
-                        return;
-                    }
-
-                    successCb();
-                });
-            };
-
-            ably.connection.once('connected', connectedHandler);
-
-            ably.connection.on('connected', uiController.onConnectionChange);
-            ably.connection.on('disconnected', uiController.onConnectionChange);
-            ably.connection.on('suspended', uiController.onConnectionChange);
-
-            ably.connection.on('failed', uiController.onError);
+            app.joinChannel(successCallback)
         }
 
         // Tell ably an user has entered the channel
         function pushPresence(callback) {
-            app.ablyChannel.presence.enterClient(app.name, callback);
+            app.ablyChannel.presence.enterClient(app.clientId, callback);
         }
 
         // Retrieve chat messages history
@@ -146,7 +131,7 @@
 
         // Chat messages handler - notifies the UiController when a message has been received, no matter own or foreign
         function messageHandler(message) {
-            var isReceived = message.data.name != app.name;
+            var isReceived = message.data.clientId !== app.clientId;
             uiController.onMessageReceived(message, isReceived);
         }
 
@@ -154,9 +139,10 @@
 
         // Publishes a given message to Ably, with the name of the current user
         this.publishMessage = function (message) {
+            // TODO: This should be using native message clientId, needs issue to be resolved first
             var messageData = {
                 text: message,
-                name: app.name
+                clientId: app.clientId
             };
 
             uiController.showLoadingOverlay('Sending...');
@@ -172,11 +158,9 @@
         };
 
         // Joins channel using a given name
-        this.joinChannel = function (name, successCallback) {
+        this.joinChannel = function (successCallback) {
             var channel = app.ablyChannel;
             var presence = channel.presence;
-
-            app.name = name;
 
             channel.attach(function (e) {
                 if (e) {
@@ -240,7 +224,7 @@
                 return;
             }
 
-            app.ablyChannel.presence.updateClient(app.name, {isTyping: typing});
+            app.ablyChannel.presence.updateClient(app.clientId, {isTyping: typing});
             isUserCurrentlyTyping = typing;
         };
     }

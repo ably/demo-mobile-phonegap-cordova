@@ -1,5 +1,5 @@
-.hidden {
-    display: none;
+#enter-name-view {
+    padding: 20px;
 }
 
 #message-list {
@@ -37,7 +37,7 @@
 #message-form {
     display: inline-block;
     width: 90%;
-    margin: 0 auto;
+    margin: 6px auto 0 auto
 }
 
 #members-list-popup {
@@ -85,14 +85,12 @@ a.dialog-close{
     content: "×";
 }
 
-
-
-
 body, div {
     font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
     font-weight: normal;
 }
 body {
+    margin: 0;
     background-color: white;
 }
 body > div {
@@ -125,24 +123,20 @@ body > div {
     overflow: scroll;
     position:fixed;
     bottom: 0;
-    width: 100%
+    width: 100%;
+    padding-bottom: 5px;
 }
+
 .message-input {
+    border-width: 1px;
     border-radius: 7px;
     border-color: #CCCCCC;
-    font-size: 16px;
+    font-size: 15px;
     padding: 6px 5px 6px 5px;
     -webkit-appearance: none;
     -moz-appearance: none;
-
     width: 90%;
 }
-.message-send {
-    text-align: center;
-    line-height: 34px;
-    font-weight: 600;
-}
-
 
 /**
  * Message-presence
@@ -249,11 +243,68 @@ body > div {
     left: -15px;
 }
 
-a.members-lozenge {
-    text-decoration: none;
+#flash-notice {
+    display: none;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: rgba(255, 175, 17, 0.85);
+    border-bottom: 1px solid #8c4100;
+    padding: 5px 10px 7px 10px;
+    font-size: 14px;
+    font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    text-align: center;
+    font-weight: bold;
+    z-index: 800;
 }
 
-#loading-history {
+/* When the flash notice first shows, make sure it is not over the first message */
+#flash-notice-page-shifter {
     display: none;
-    margin-bottom: 1em;
+    height: 35px;
+}
+
+a#members-lozenge {
+    text-decoration: none;
+    margin: 0px 10px;
+    display: block;
+    float: left;
+}
+
+a#members-lozenge.disabled {
+    opacity: 0.5;
+}
+
+input.message-input:disabled {
+    background-color: #E9E9E9;
+}
+
+input[type=submit] {
+    cursor: pointer;
+    background: #c7c7c7;
+    background-image: -webkit-linear-gradient(top, #c7c7c7, #8c8c8c);
+    background-image: -moz-linear-gradient(top, #c7c7c7, #8c8c8c);
+    background-image: -ms-linear-gradient(top, #c7c7c7, #8c8c8c);
+    background-image: -o-linear-gradient(top, #c7c7c7, #8c8c8c);
+    background-image: linear-gradient(to bottom, #c7c7c7, #8c8c8c);
+    -webkit-border-radius: 8;
+    -moz-border-radius: 8;
+    border-radius: 8px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 14px;
+    padding: 6px 10px 6px 10px;
+    text-decoration: none;
+    border: none;
+}
+
+input[type=submit]:hover {
+    background: #adadad;
+    background-image: -webkit-linear-gradient(top, #adadad, #757575);
+    background-image: -moz-linear-gradient(top, #adadad, #757575);
+    background-image: -ms-linear-gradient(top, #adadad, #757575);
+    background-image: -o-linear-gradient(top, #adadad, #757575);
+    background-image: linear-gradient(to bottom, #adadad, #757575);
+    text-decoration: none;
+    border: none;
 }

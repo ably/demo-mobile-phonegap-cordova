@@ -27,6 +27,9 @@
 </head>
 <body>
 
+<div id="flash-notice"></div>
+<div id="flash-notice-page-shifter"></div>
+
 <div id="loading-overlay">
     <span id="loading-message"></span>
 </div>
@@ -34,32 +37,27 @@
 <div id="enter-name-view">
     <form id="name-form">
         <input type="text" placeholder="Name" id="name" class="name-input"/>
-        <input type="submit" id="submit-name" value="Submit"/>
+        <input type="submit" id="submit-name" value="Join"/>
     </form>
 </div>
 
 <div id="main-app-view">
 
     <div id="message-list-container">
-        <div id="loading-history">Loading history...</div>
-
-        <div id="message-list">
-        </div>
-
+        <div id="message-list"></div>
         <span id="members-typing-indication"></span>
-        <span id="connection-info"></span>
     </div>
 
     <div class="type-message-bar">
-        <a class="members-lozenge" href="javascript:void(0)">
+        <a id="members-lozenge" href="javascript:void(0)">
             <img src="images/avatars.png" width="32"/>
-            <span class="members-count"></span>
+            <span id="members-count"></span>
         </a>
 
         <form id="message-form" action="#">
             <div class="chat-box">
                 <input type="text" id="message-text" class="message-input" placeholder="Message"/>
-                <input type="submit" id="submit-message" class="message-send" value="Submit"/>
+                <input type="submit" id="submit-message" class="message-send" value="Send"/>
             </div>
         </form>
     </div>

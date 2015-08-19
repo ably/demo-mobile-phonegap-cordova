@@ -1,21 +1,23 @@
 (function (window) {
     "use strict";
 
-    // Constructs an UiController, containing various functions related to the UI:
+    // Constructs a View, containing various functions related to the UI:
     // * Triggering loading overlay
     // * Displaying presence messages
     // * Displaying chat messages
     // * Displaying members count and mentioning
-    function UiController() {
-        var controller = this;
+    function View() {
+        var view = this;
         var $messageList = $('#message-list');
         var $loadingOverlay = $('#loading-overlay');
         var $loadingMessage = $('#loading-message');
-        var $loadingHistory = $('#loading-history');
+        var $flashNotice = $('#flash-notice');
+        var $flashNoticePusher = $('#flash-notice-page-shifter');
         var $messageFormInputs = $('#message-form :input');
-        var $connectionInfo = $('#connection-info');
+        var $sendMessageButton = $('#submit-message');
         var $messageText = $('#message-text');
-        var $membersCountLozenge = $('#main-app-view').find('.members-count');
+        var $membersLozenge = $('#members-lozenge');
+        var $membersCountLozenge = $('#members-count');
         var $membersTypingNotification = $('#members-typing-indication');
         var $membersList = $('#members-list');
         var $membersListPopup = $('#members-list-popup');
@@ -29,16 +31,23 @@
             $loadingOverlay.hide();
         }
 
-        this.showLoadingHistory = function() {
-            $loadingHistory.show();
+        this.showNotice = function(message) {
+            var shouldUpdateScroll = shouldScrollAutomatically();
+
+            $flashNotice.text(message);
+            $flashNoticePusher.show();
+            $flashNotice.show();
+
+            if (shouldUpdateScroll) { window.setTimeout(scrollToBottom, 10); }
         }
 
-        this.hideLoadingHistory = function() {
-            $loadingHistory.hide();
+        this.hideNotice = function() {
+            $flashNotice.hide();
+            $flashNoticePusher.hide();
         }
 
         function publishedFromSelf(message) {
-            return message.clientId == controller.clientId;
+            return message.clientId == view.clientId;
         }
 
         function messageElem(message) {
@@ -83,8 +92,7 @@
         function addToMessageList($elem, historicalMessages) {
             if (!$elem) { return; } // ignore empty elements i.e. presence messages we won't display such as updates
 
-            // If near the bottom, then scroll new message into focus automatically
-            var shouldScrollAutomatically = $(window).scrollTop() + $(window).height() >= $(document).height() - 100;
+            var shouldUpdateScroll = shouldScrollAutomatically();
 
             if (historicalMessages) {
                 $messageList.prepend($elem);
@@ -92,7 +100,12 @@
                 $messageList.append($elem);
             }
 
-            if (shouldScrollAutomatically) { window.setTimeout(scrollToBottom, 10); }
+            if (shouldUpdateScroll) { window.setTimeout(scrollToBottom, 10); }
+        }
+
+        // If near the bottom, then scroll new message into focus automatically
+        function shouldScrollAutomatically() {
+            return $(window).scrollTop() + $(window).height() >= $(document).height() - 100;
         }
 
         function scrollToBottom() {
@@ -128,31 +141,47 @@
             }));
         }
 
-        // Connection change handler
-        // * Disconnected: disable user input and display meaningful message
-        // * Connected: reenable input and hide message
-        this.onConnectionChange = function(state) {
+        function enableInterface() {
+            view.hideNotice();
+            $messageFormInputs.prop('disabled', false);
+            $membersCountLozenge.show();
+            $membersLozenge.removeClass('disabled');
+            $sendMessageButton.val('Send');
+        }
+
+        function disableInterface(reason) {
+            view.showNotice(reason);
+            $messageFormInputs.prop('disabled', true);
+            $membersCountLozenge.hide();
+            $membersLozenge.addClass('disabled');
+            $sendMessageButton.val('disconnected');
+        }
+
+        // Connection state change handler
+        // * Disconnected / suspended: disable user input and display meaningful message
+        // * Closed: disable user input and display meaningful message (closed following a request)
+        // * Connected: re-enable input and hide message
+        this.updateConnectionState = function(state) {
             if (state.current === 'disconnected' || state.current === 'suspended') {
-                $messageFormInputs.prop('disabled', true);
-                $connectionInfo.text(state.reason.message);
+                disableInterface(state.reason.message);
+            } else if (state.current === 'closed') {
+                disableInterface('Connection is closed as a result of a user interaction');
             } else if (state.current === 'connected') {
-                $messageFormInputs.prop('disabled', false);
-                $connectionInfo.text('');
+                enableInterface();
             }
         }
 
-        // Receives an Ably message and shows it on the screen
-        this.onMessageReceived = function (message) {
+        this.showNewMessage = function (message) {
             addToMessageList(messageElem(message));
         };
 
         // Receives an Ably presence message and shows it on the screen
-        this.onPresenceReceived = function (presenceMessage, members) {
+        this.showPresenceEvent = function (presenceMessage, members) {
             addToMessageList(presenceElem(presenceMessage));
             updateMembers(members);
         };
 
-        this.addHistoricalMessages = function (messages) {
+        this.prependHistoricalMessages = function (messages) {
             var message, elem;
             for (var i = 0; i < messages.length; i++) {
                 message = messages[i]
@@ -166,7 +195,7 @@
         }
 
         // Generic error handler - alert()s an error, if one exists
-        this.onError = function (err) {
+        this.showError = function (err) {
             var errorMessage = "Oops, something has gone wrong. We recommend you restart this demo.";
             if (err) {
                 if (err.message) {
@@ -175,7 +204,7 @@
                     errorMessage += "\n" + JSON.stringify(err);
                 }
             }
-            controller.hideLoadingOverlay();
+            view.hideLoadingOverlay();
         };
 
         // Clears the messages list
@@ -184,5 +213,5 @@
         };
     }
 
-    window.UiController = UiController;
+    window.View = View;
 }(window));

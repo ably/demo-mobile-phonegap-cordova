@@ -1,4 +1,4 @@
-/* Set up the view and link in the UI controller and app */
+/* Controller sets up the view and app  */
 
 $(document).ready(function () {
     Origami.fastclick(document.body);
@@ -8,12 +8,12 @@ $(document).ready(function () {
     var $name = $('#name');
     var $nameForm = $('#name-form');
     var $messageForm = $('#message-form');
-    var $membersLozenge = $mainAppView.find('.members-lozenge');
+    var $membersLozenge = $mainAppView.find('#members-lozenge');
     var $membersListPopup = $('#members-list-popup');
     var $dialogCloseButton = $('#dialog-close');
 
-    var uiController = new UiController();
-    var app = new ChatApp(uiController);
+    var view = new View();
+    var app = new ChatApp(view);
 
     // DO NOT COMMIT THIS
     window.app = app;
@@ -45,7 +45,7 @@ $(document).ready(function () {
         $enterNameView.hide();
         $mainAppView.show();
 
-        uiController.showLoadingOverlay('Connecting to Ably...');
+        view.showLoadingOverlay('Connecting to Ably...');
         app.initialize($name.val());
     });
 
@@ -79,7 +79,9 @@ $(document).ready(function () {
     }, 2000));
 
     $membersLozenge.on('click', function () {
-        $membersListPopup.show();
+        if (!$(this).hasClass('disabled')) {
+            $membersListPopup.show();
+        }
     });
 
     $dialogCloseButton.on('click', function () {

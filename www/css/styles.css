@@ -6,6 +6,11 @@
     list-style: none;
 }
 
+/* Ensure there is sufficient margin in the message list & notices to allow for the floating message bar */
+#message-list-container {
+    margin-bottom: 44px;
+}
+
 #loading-overlay {
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 999;
@@ -102,9 +107,9 @@ body > div {
 }
 
 /**
- * Message-bar
+ * Message-bar that floats at the bottom for typing new messages
  */
-.message-back {
+.type-message-bar {
     border-top: 1px solid #CCCCCC;
     background-color: #EEEEEE;
     overflow: scroll;

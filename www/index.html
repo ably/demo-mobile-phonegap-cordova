@@ -41,14 +41,15 @@
 
 <div id="main-app-view" class="hidden">
 
-    <div id="message-list">
+    <div id="message-list-container">
+        <div id="message-list">
+        </div>
 
+        <span id="members-typing-indication"></span>
+        <span id="connection-info"></span>
     </div>
 
-    <span id="members-typing-indication"></span>
-    <span id="connection-info"></span>
-
-    <div class="message-back">
+    <div class="type-message-bar">
         <a class="members-lozenge" href="javascript:void(0)">
             <img src="images/avatars.png" width="32"/>
             <span class="members-count"></span>

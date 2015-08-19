@@ -144,12 +144,6 @@
             var actionText;
             updateMembers(members, userClientId);
 
-            // Updates like 'user is typing' are handled in updateMembers(), 
-            // but not displayed the same way as 'entered' and 'left'
-            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.UPDATE) {
-                return;
-            }
-
             if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                 actionText = 'entered';
             }
@@ -158,11 +152,14 @@
                 actionText = 'left';
             }
 
-            showPresence({
-                name: presenceMessage.clientId,
-                action: actionText,
-                timestamp: presenceMessage.timestamp
-            });
+            // update and sync events are not shown in the interface
+            if (actionText) {
+                showPresence({
+                    name: presenceMessage.clientId,
+                    action: actionText,
+                    timestamp: presenceMessage.timestamp
+                });
+            }
         };
 
         // Clears the messages list

@@ -173,9 +173,7 @@
 
             // unsubscribe from events subscribed in previous joinChannel() calls
             channel.unsubscribe(Constants.MESSAGE_NAME, messageHandler);
-            presence.off('enter', getMembersAndCallUiController);
-            presence.off('leave', getMembersAndCallUiController);
-            presence.off('update', getMembersAndCallUiController);
+            presence.off(getMembersAndCallUiController);
 
             channel.attach(function (e) {
                 if (e) {
@@ -192,9 +190,7 @@
                         displayHistory(messages, presences);
 
                         channel.subscribe(Constants.MESSAGE_NAME, messageHandler);
-                        presence.on('enter', getMembersAndCallUiController);
-                        presence.on('leave', getMembersAndCallUiController);
-                        presence.on('update', getMembersAndCallUiController);
+                        presence.on(getMembersAndCallUiController);
 
                         pushPresence(function (err) {
                             if (err) {

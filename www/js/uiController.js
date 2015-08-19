@@ -138,15 +138,13 @@
 
         // Generic error handler - alert()s an error, if one exists
         this.onError = function (err) {
+            var errorMessage = "Oops, something has gone wrong. We recommend you restart this demo.";
             if (err) {
                 if (err.message) {
-                    alert(err.message);
+                    errorMessage += "\n" + err.message;
+                } else {
+                    errorMessage += "\n" + JSON.stringify(err);
                 }
-                else {
-                    alert(JSON.stringify(err));
-                }
-            } else {
-                alert("Oops, something has gone wrong. We recommend you restart this demo");
             }
             controller.hideLoadingOverlay();
         };

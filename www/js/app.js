@@ -20,8 +20,16 @@
 
         // Gets the members from the Presence object and notifies the uiController of a presence change
         function getMembersAndCallUiController(presenceMessage) {
-            app.ablyChannel.presence.get(function (clientId, members) {
-                uiController.onPresence(presenceMessage, members, app.name);
+            app.ablyChannel.presence.get(function (err, members) {
+                if (err) {
+                    uiController.onError(err);
+                    return;
+                }
+
+                members = members.filter(function (member) {
+                    return member.clientId !== app.name;
+                });
+                uiController.onPresence(presenceMessage, members);
             });
         }
 

@@ -77,15 +77,12 @@
         }
 
         // Updates the members count in the lozenge and their names in the 'Members' popup dialog
-        function updateMembers(members, userClientId) {
+        function updateMembers(members) {
             members = members || [];
 
             // Typing members are users (except the current one) who have 'isTyping' set to true in their presence data.
             var typingMembers = members.filter(function (member) {
-                return member &&
-                    member.data &&
-                    member.data.isTyping &&
-                    member.clientId !== userClientId;
+                return member && member.data && member.data.isTyping;
             });
             var typingMembersNames = typingMembers.map(function (member) {
                 return member.clientId;
@@ -150,9 +147,9 @@
         };
 
         // Receives an Ably presence message and shows it on the screen
-        this.onPresence = function (presenceMessage, members, userClientId) {
+        this.onPresence = function (presenceMessage, members) {
             var actionText;
-            updateMembers(members, userClientId);
+            updateMembers(members);
 
             if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                 actionText = 'entered';

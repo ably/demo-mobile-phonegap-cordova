@@ -94,7 +94,7 @@
                     return;
                 }
 
-                callback(messages.items);
+                callback(messages.items.slice(1)); // TODO: Remove slice once untilAttach implemented to avoid duplicate you have entered
             })
         }
 

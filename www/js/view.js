@@ -94,7 +94,7 @@ $(document).ready(function () {
         $membersListPopup.hide();
     });
 
-    $(window).unload(function () {
+    window.onunload = window.onbeforeunload = function () {
         app.disconnect();
-    });
+    };
 });

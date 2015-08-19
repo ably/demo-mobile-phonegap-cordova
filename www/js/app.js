@@ -213,23 +213,16 @@
             uiController.showLoadingOverlay('Connecting...');
             app.ably.connection.connect(function() {
                 app.joinChannel(app.name, uiController.hideLoadingOverlay);
-            })
+            });
         };
 
-        // Leaves channel and disconnects from Ably
+        // Leaves channel by disconnecting from Ably
         this.disconnect = function () {
-            if (!app.ably || !app.ably.connection || !app.ablyChannel) {
-                return;
-            }
-
-            app.ablyChannel.presence.leaveClient(app.name, function () {
-                app.ablyChannel.detach(function () {
-                    console.log('detached channel');
-                    app.ably.connection.close(function () {
-                        console.log('closed connection');
-                    });
+            if (app.ably && app.ably.connection) {
+                app.ably.connection.close(function () {
+                    console.log('closed connection');
                 });
-            });
+            }
         };
 
         // Updates presence data for user with information whether he's currently typing

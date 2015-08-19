@@ -238,3 +238,8 @@ body > div {
     border-width: 5px 10px 5px 0;
     left: -15px;
 }
+
+a.members-lozenge {
+    text-decoration: none;
+}
+

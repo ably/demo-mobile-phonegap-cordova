@@ -9,7 +9,7 @@ $(document).ready(function () {
     var $nameForm = $('#name-form');
     var $messageForm = $('#message-form');
     var $membersLozenge = $mainAppView.find('.members-lozenge');
-    var $membersListPopup = $('.members-list-popup');
+    var $membersListPopup = $('#members-list-popup');
     var $dialogCloseButton = $('#dialog-close');
 
     var uiController = new UiController();
@@ -26,7 +26,7 @@ $(document).ready(function () {
             });
 
             document.addEventListener('resume', function () {
-                app.connect();
+                app.reconnect();
             });
         });
     }
@@ -44,7 +44,7 @@ $(document).ready(function () {
         $mainAppView.show();
 
         uiController.showLoadingOverlay('Connecting to Ably...');
-        app.initialize($name.val(), uiController.hideLoadingOverlay);
+        app.initialize($name.val());
     });
 
     // Sends the message typed by the user and stops the 'user is typing' notification

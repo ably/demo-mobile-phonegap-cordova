@@ -2,9 +2,6 @@
     "use strict";
 
     var Constants = {
-        // Ably message name
-        MESSAGE_NAME: 'chat-message',
-
         // Ably channel name
         ABLY_CHANNEL_NAME: 'mobile:chat',
 
@@ -19,58 +16,33 @@
         var isUserCurrentlyTyping = false;
 
         // Gets the members from the Presence object and notifies the uiController of a presence change
-        function getMembersAndCallUiController(presenceMessage) {
+        function membersChanged(presenceMessage) {
             app.ablyChannel.presence.get(function (err, members) {
                 if (err) {
                     uiController.onError(err);
                     return;
                 }
-
-                members = members.filter(function (member) {
-                    return member.clientId !== app.clientId;
-                });
-                uiController.onPresence(presenceMessage, members);
+                uiController.onPresenceReceived(presenceMessage, members);
             });
         }
 
-        // Sort chat and presence messages and notify the uiController
+        // Sort chat and presence messages into one list and add to messages
         function displayHistory(messages, presence) {
-            // Combine both chat messages and presence messages into one array, sorted by timestamp.
-            // Then enumerate and for each item call the appropriate UiController method.
-            var index;
-            var currentItem;
-            var all = messages.concat(presence);
-
-            // Sort
-            all.sort(function (a, b) {
-                return a.timestamp < b.timestamp ? -1
+            var all = messages.concat(presence).sort(function (a, b) {
+                return a.timestamp < b.timestamp ? 1
                     : a.timestamp == b.timestamp ? 0
-                    : 1;
+                    : -1;
             });
-
-            // Clean up previous messages, in case the app has been resumed
-            uiController.resetMessages();
-
-            // Enumerate the sorted history and notify the UI controller for each message
-            for (index = 0; index < all.length; index++) {
-                currentItem = all[index];
-
-                // Simple check to see if the current item is chat message or a presence message
-                if (_.contains(messages, currentItem)) {
-                    messageHandler(currentItem);
-                }
-                else if (_.contains(presence, currentItem)) {
-                    uiController.onPresence(currentItem);
-                }
-            }
+            uiController.addHistoricalMessages(all);
         }
 
         // Initializes an Ably realtime instance using the clientId
         // * Connect using Token Request
         // * Attach channel
         // * Notify caller via success callback
-        function prepareAblyInstance(clientId, successCallback) {
+        this.initialize = function (clientId) {
             app.clientId = clientId;
+            uiController.clientId = clientId;
 
             app.ably = new Ably.Realtime({
                 authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
@@ -87,12 +59,7 @@
 
             app.ably.connection.on('failed', uiController.onError);
 
-            app.joinChannel(successCallback)
-        }
-
-        // Tell ably an user has entered the channel
-        function pushPresence(callback) {
-            app.ablyChannel.presence.enterClient(app.clientId, callback);
+            app.joinChannel();
         }
 
         // Retrieve chat messages history
@@ -100,6 +67,7 @@
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
                 direction: 'backwards'
+                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
             };
 
             app.ablyChannel.history(params, function (err, result) {
@@ -117,6 +85,7 @@
             var params = {
                 direction: 'backwards',
                 limit: Constants.HISTORY_MESSAGES_LIMIT
+                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
             };
 
             app.ablyChannel.presence.history(params, function (err, messages) {
@@ -135,85 +104,88 @@
             uiController.onMessageReceived(message, isReceived);
         }
 
-        this.initialize = prepareAblyInstance;
-
-        // Publishes a given message to Ably, with the name of the current user
-        this.publishMessage = function (message) {
-            // TODO: This should be using native message clientId, needs issue to be resolved first
-            var messageData = {
-                text: message,
-                clientId: app.clientId
-            };
-
+        // Publishes the given message data to Ably with the clientId embedded
+        this.publishMessage = function (data) {
             uiController.showLoadingOverlay('Sending...');
 
-            app.ablyChannel.publish(Constants.MESSAGE_NAME, messageData, function (err) {
+            app.ablyChannel.publish({ data: data, clientId: app.clientId }, function (err) {
                 if (err) {
                     uiController.onError(err);
                     return;
                 }
-
                 uiController.hideLoadingOverlay();
             });
         };
 
-        // Joins channel using a given name
-        this.joinChannel = function (successCallback) {
+        // Joins the channel and registers presence
+        // Once present, history is loaded and displayed
+        this.joinChannel = function () {
             var channel = app.ablyChannel;
             var presence = channel.presence;
 
-            channel.attach(function (e) {
-                if (e) {
-                    uiController.onError(e);
+            uiController.resetMessages();
+
+            channel.subscribe(messageHandler);
+            presence.on(membersChanged);
+
+            presence.enterClient(app.clientId, function(err) {
+                if (err) {
+                    uiController.onError(err);
                     return;
                 }
-
-                // * Retrieve chat & presence history
-                // * Notify the UiController
-                // * Subscribe to presence updates
-                // * Send 'user has entered channel' update
-                getMessagesHistory(function (messages) {
-                    getPresenceHistory(function (presences) {
-                        displayHistory(messages, presences);
-
-                        channel.subscribe(Constants.MESSAGE_NAME, messageHandler);
-                        presence.on(getMembersAndCallUiController);
-
-                        pushPresence(function (err) {
-                            if (err) {
-                                uiController.onError(err);
-                                return;
-                            }
-
-                            successCallback();
-                        });
-                    });
-                });
+                uiController.hideLoadingOverlay();
+                uiController.showLoadingHistory();
+                app.loadHistory();
             });
 
             channel.once('detached', channelStateLost);
             channel.once('failed', channelStateLost);
         };
 
-        function channelStateLost() {
-            channel.unsubscribe(Constants.MESSAGE_NAME, messageHandler);
-            presence.off(getMembersAndCallUiController);
+        // * Retrieve chat & presence history
+        // * Notify the UiController
+        this.loadHistory = function () {
+            var messageHistory, presenceHistory;
+
+            var displayIfReady = function() {
+                if (messageHistory && presenceHistory) {
+                    uiController.hideLoadingHistory();
+                    displayHistory(messageHistory, presenceHistory);
+                }
+            }
+
+            getMessagesHistory(function (messages) {
+                messageHistory = messages;
+                displayIfReady();
+            });
+
+            getPresenceHistory(function (presenceMessages) {
+                presenceHistory = presenceMessages;
+                displayIfReady();
+            });
         }
 
-        // Connects to Ably and joins channel
-        this.connect = function () {
-            uiController.showLoadingOverlay('Connecting...');
-            app.ably.connection.connect(function() {
-                app.joinChannel(app.name, uiController.hideLoadingOverlay);
+        function channelStateLost() {
+            // remove all listeners as we will set them up again once the connection is restored
+            app.ablyChannel.unsubscribe();
+            app.ablyChannel.presence.off();
+
+            app.ably.connection.once('connected', function() {
+                app.joinChannel();
             });
+        }
+
+        // Explicitly reconnect to Ably and joins channel
+        this.reconnect = function () {
+            uiController.hideLoadingOverlay();
+            app.ably.connection.connect();
+            app.joinChannel();
         };
 
         // Leaves channel by disconnecting from Ably
         this.disconnect = function () {
             if (app.ably && app.ably.connection) {
-                app.ably.connection.close(function () {
-                    console.log('closed connection');
-                });
+                app.ably.connection.close();
             }
         };
 

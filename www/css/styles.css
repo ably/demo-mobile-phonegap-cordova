@@ -12,17 +12,26 @@
 }
 
 #loading-overlay {
-    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
     z-index: 999;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    display: none;
     color: white;
-    text-align: justify;
+    background-color: rgba(0, 0, 0, 0.8);
     font-size: 3em;
+    text-align: center;
+}
+
+#loading-overlay span {
+    padding: 25%;
+    display: block;
+}
+
+#main-app-view {
+    display: none;
 }
 
 #message-form {
@@ -31,7 +40,8 @@
     margin: 0 auto;
 }
 
-.members-list-popup {
+#members-list-popup {
+    display: none;
     z-index: 999;
     position: fixed;
     top: 0;
@@ -41,7 +51,7 @@
     margin:0 auto;
 }
 
-.members-list {
+#members-list {
     width: 35%;
     height: 40%;
     margin: 0 auto;
@@ -49,15 +59,15 @@
     list-style-type: none;
 }
 
-.members-list-popup h1 {
+#members-list-popup h1 {
     margin-top: 50px;
 }
 
-.members-list-popup h1, h5 {
+#members-list-popup h1, h5 {
     text-align: center;
 }
 
-.members-list li:before {
+#members-list li:before {
     content: '@'
 }
 
@@ -177,7 +187,7 @@ body > div {
     overflow: hidden;
     background: white;
 }
-.message-bubble.send {
+.message-bubble.sent {
     padding: 0 10px 10px 30px;
 }
 .message-bubble.received {
@@ -194,7 +204,7 @@ body > div {
     float: left;
     max-width: 90%;
 }
-.message-bubble.send .back {
+.message-bubble.sent .back {
     background-color: rgb(114, 173, 191);
     float: right;
 }
@@ -210,7 +220,7 @@ body > div {
     margin-left: 10px;
     color: #888888;
 }
-.message-bubble.send .time {
+.message-bubble.sent .time {
     color: #444444;
 }
 .message-bubble .message {
@@ -228,7 +238,7 @@ body > div {
     display: block;
     width: 0;
 }
-.message-bubble.send .back:after {
+.message-bubble.sent .back:after {
     border-width: 5px 0 5px 10px;
     float: right;
     right: -15px;
@@ -243,3 +253,7 @@ a.members-lozenge {
     text-decoration: none;
 }
 
+#loading-history {
+    display: none;
+    margin-bottom: 1em;
+}

@@ -27,7 +27,7 @@
 </head>
 <body>
 
-<div id="loading-overlay" class="hidden">
+<div id="loading-overlay">
     <span id="loading-message"></span>
 </div>
 
@@ -38,9 +38,11 @@
     </form>
 </div>
 
-<div id="main-app-view" class="hidden">
+<div id="main-app-view">
 
     <div id="message-list-container">
+        <div id="loading-history">Loading history...</div>
+
         <div id="message-list">
         </div>
 
@@ -63,13 +65,12 @@
     </div>
 </div>
 
-<div class="hidden members-list-popup">
+<div id="members-list-popup">
     <a class="dialog-close" id="dialog-close"></a>
 
     <h1>Members present</h1>
     <h5>Click a user to @ mention them</h5>
-    <ul class="members-list">
-    </ul>
+    <ul id="members-list"></ul>
 </div>
 
 </body>

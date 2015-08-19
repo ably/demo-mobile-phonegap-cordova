@@ -6,6 +6,10 @@
         return n < 10 ? '0' + n : n;
     }
 
+    function leftTrim(string) {
+        return string.replace(/^\s+/, "");
+    }
+
     // Formats a Date object into a "hours:minutes:seconds" time format.
     function formatDateAsLocalTime(date) {
         return padZeroes(date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());

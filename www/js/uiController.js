@@ -11,54 +11,87 @@
         var $messageList = $('#message-list');
         var $loadingOverlay = $('#loading-overlay');
         var $loadingMessage = $('#loading-message');
+        var $loadingHistory = $('#loading-history');
         var $messageFormInputs = $('#message-form :input');
         var $connectionInfo = $('#connection-info');
         var $messageText = $('#message-text');
         var $membersCountLozenge = $('#main-app-view').find('.members-count');
         var $membersTypingNotification = $('#members-typing-indication');
-        var $membersList = $('.members-list');
-        var $membersListPopup = $('.members-list-popup');
+        var $membersList = $('#members-list');
+        var $membersListPopup = $('#members-list-popup');
 
-        function showLoadingOverlay(message) {
-            message = message || 'Loading...';
+        this.showLoadingOverlay = function(message) {
+            $loadingMessage.text(message || 'Loading...');
             $loadingOverlay.show();
-            if (message) {
-                $loadingMessage.text(message);
-            }
         }
 
-        function hideLoadingOverlay() {
+        this.hideLoadingOverlay = function() {
             $loadingOverlay.hide();
-            $loadingMessage.text('');
         }
 
-        // Creates a message bubble and displays it after the last bubble
-        function showMessage(message) {
-            var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
-            var $author = $('<span class="author">' + message.clientId + '</span>');
-            var $time = $('<div class="time">' + dateAsLocalTime + '</div>');
-            var $message = $('<div class="message">' + message.text + '</div>');
-            var $back = $('<div class="back"></div>');
-            $back.append($author, $time, $message);
+        this.showLoadingHistory = function() {
+            $loadingHistory.show();
+        }
 
-            var $li = $('<div class="message-bubble"></div>');
+        this.hideLoadingHistory = function() {
+            $loadingHistory.hide();
+        }
+
+        function publishedFromSelf(message) {
+            return message.clientId == controller.clientId;
+        }
+
+        function messageElem(message) {
+            var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
+            var $author = $('<span class="author">').text(message.clientId);
+            var $time = $('<div class="time">').text(dateAsLocalTime);
+            var $message = $('<div class="message">').text(message.data);
+            var $back = $('<div class="back">');
+            var $li = $('<div class="message-bubble">');
+
+            $back.append($author, $time, $message);
             $li.append($back);
 
-            // Distinguish between own messages and received from somebody else
-            if (message.isReceived) {
-                $li.addClass('received');
+            if (publishedFromSelf(message)) {
+                return $li.addClass('sent');
+            } else {
+                return $li.addClass('received');
             }
-            else {
-                $li.addClass('send');
-            }
-
-            appendToMessageList($li);
         }
 
-        function appendToMessageList($elem) {
-            // Scroll new message into focus automatically if near the bottom
+        function presenceElem(presence) {
+            var actionText, $text, $div;
+
+            if (presence.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
+                actionText = 'entered';
+            } else if (presence.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
+                actionText = 'left';
+            } else {
+                return;
+            }
+
+            $text = $('<span class="text">');
+            if (publishedFromSelf(presence)) {
+                $text.text('you ' + actionText + ' the channel');
+            } else {
+                $text.text(presence.clientId + ' has ' + actionText + ' the channel');
+            }
+
+            return $('<div class="message-presence">').append($text);
+        }
+
+        function addToMessageList($elem, historicalMessages) {
+            if (!$elem) { return; } // ignore empty elements i.e. presence messages we won't display such as updates
+
+            // If near the bottom, then scroll new message into focus automatically
             var shouldScrollAutomatically = $(window).scrollTop() + $(window).height() >= $(document).height() - 100;
-            $messageList.append($elem);
+
+            if (historicalMessages) {
+                $messageList.prepend($elem);
+            } else {
+                $messageList.append($elem);
+            }
+
             if (shouldScrollAutomatically) { window.setTimeout(scrollToBottom, 10); }
         }
 
@@ -66,25 +99,14 @@
             $('html, body').scrollTop($(document).height() - $(window).height());
         }
 
-        // Displays a presence notification - e.g. 'user has entered/left the channel'
-        function showPresence(presence) {
-            var $text = $('<span class="text"></span>');
-            var $div = $('<div class="message-presence"></div>');
-            $text.html(presence.name + ' has ' + presence.action + ' the channel');
-
-            $div.append($text);
-            appendToMessageList($div);
-        }
-
         // Updates the members count in the lozenge and their names in the 'Members' popup dialog
         function updateMembers(members) {
             members = members || [];
 
-            // Typing members are users (except the current one) who have 'isTyping' set to true in their presence data.
-            var typingMembers = members.filter(function (member) {
+            // Typing members are users who have 'isTyping' set to true in their presence data
+            var typingMembersNames = members.filter(function (member) {
                 return member && member.data && member.data.isTyping;
-            });
-            var typingMembersNames = typingMembers.map(function (member) {
+            }).map(function (member) {
                 return member.clientId;
             });
             var text = Utils.formatTypingNotification(typingMembersNames);
@@ -93,11 +115,11 @@
             $membersTypingNotification.text(text);
 
             // Clear the member list and replace it with a list with their names
-            $membersList.html('').append(members.map(function (m) {
-                var memberName = m.clientId;
-                var $li = $('<li><a href="javascript:void(0)">' + memberName + '</a></li>');
+            $membersList.html('').append(members.map(function (member) {
+                var memberName = member.clientId;
+                var $li = $('<li><a href="javascript:void(0)">').text(memberName);
                 $li.on('click', function () {
-                    $messageText.val($messageText.val() + '@' + memberName + ' ');
+                    $messageText.val(leftTrim($messageText.val() + ' @' + memberName + ' '));
                     $membersListPopup.hide();
                     $messageText.focus();
                 });
@@ -109,29 +131,39 @@
         // Connection change handler
         // * Disconnected: disable user input and display meaningful message
         // * Connected: reenable input and hide message
-        function onConnectionChange(state) {
+        this.onConnectionChange = function(state) {
             if (state.current === 'disconnected' || state.current === 'suspended') {
                 $messageFormInputs.prop('disabled', true);
                 $connectionInfo.text(state.reason.message);
-            }
-            else if (state.current === 'connected') {
+            } else if (state.current === 'connected') {
                 $messageFormInputs.prop('disabled', false);
                 $connectionInfo.text('');
-
-                // hide overlay in case the app was resumed and has been connecting
-                hideLoadingOverlay();
             }
         }
 
         // Receives an Ably message and shows it on the screen
-        this.onMessageReceived = function (message, isReceived) {
-            showMessage({
-                clientId: message.data.clientId,
-                text: message.data.text,
-                timestamp: message.timestamp,
-                isReceived: isReceived
-            });
+        this.onMessageReceived = function (message) {
+            addToMessageList(messageElem(message));
         };
+
+        // Receives an Ably presence message and shows it on the screen
+        this.onPresenceReceived = function (presenceMessage, members) {
+            addToMessageList(presenceElem(presenceMessage));
+            updateMembers(members);
+        };
+
+        this.addHistoricalMessages = function (messages) {
+            var message, elem;
+            for (var i = 0; i < messages.length; i++) {
+                message = messages[i]
+                if (message.action) {
+                    elem = presenceElem(message);
+                } else {
+                    elem = messageElem(message);
+                }
+                addToMessageList(elem, true);
+            }
+        }
 
         // Generic error handler - alert()s an error, if one exists
         this.onError = function (err) {
@@ -146,37 +178,10 @@
             controller.hideLoadingOverlay();
         };
 
-        // Receives an Ably presence message and shows it on the screen
-        this.onPresence = function (presenceMessage, members) {
-            var actionText;
-            updateMembers(members);
-
-            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
-                actionText = 'entered';
-            }
-
-            if (presenceMessage.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
-                actionText = 'left';
-            }
-
-            // update and sync events are not shown in the interface
-            if (actionText) {
-                showPresence({
-                    name: presenceMessage.clientId,
-                    action: actionText,
-                    timestamp: presenceMessage.timestamp
-                });
-            }
-        };
-
         // Clears the messages list
         this.resetMessages = function () {
             $messageList.empty();
         };
-
-        this.onConnectionChange = onConnectionChange;
-        this.showLoadingOverlay = showLoadingOverlay;
-        this.hideLoadingOverlay = hideLoadingOverlay;
     }
 
     window.UiController = UiController;

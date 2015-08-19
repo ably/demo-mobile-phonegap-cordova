@@ -84,12 +84,11 @@
                         return;
                     }
 
-                    ably.connection.off('connected', connectedHandler);
                     successCb();
                 });
             };
 
-            ably.connection.on('connected', connectedHandler);
+            ably.connection.once('connected', connectedHandler);
 
             ably.connection.on('connected', uiController.onConnectionChange);
             ably.connection.on('disconnected', uiController.onConnectionChange);
@@ -171,10 +170,6 @@
 
             app.name = name;
 
-            // unsubscribe from events subscribed in previous joinChannel() calls
-            channel.unsubscribe(Constants.MESSAGE_NAME, messageHandler);
-            presence.off(getMembersAndCallUiController);
-
             channel.attach(function (e) {
                 if (e) {
                     uiController.onError(e);
@@ -203,19 +198,22 @@
                     });
                 });
             });
+
+            channel.once('detached', channelStateLost);
+            channel.once('failed', channelStateLost);
         };
+
+        function channelStateLost() {
+            channel.unsubscribe(Constants.MESSAGE_NAME, messageHandler);
+            presence.off(getMembersAndCallUiController);
+        }
 
         // Connects to Ably and joins channel
         this.connect = function () {
             uiController.showLoadingOverlay('Connecting...');
-
-            function onConnected() {
+            app.ably.connection.connect(function() {
                 app.joinChannel(app.name, uiController.hideLoadingOverlay);
-                app.ably.connection.off('connected', onConnected);
-            }
-
-            app.ably.connection.on('connected', onConnected);
-            app.ably.connection.connect();
+            })
         };
 
         // Leaves channel and disconnects from Ably

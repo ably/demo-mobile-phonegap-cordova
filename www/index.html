@@ -118,6 +118,11 @@
         $nameForm.on('submit', function (ev) {
             ev.preventDefault();
 
+            if ($name.val() === '') {
+                $name.attr('placeholder', 'Name is required').addClass('validation-error')
+                return;
+            }
+
             $enterNameView.hide();
             $mainAppView.show();
 

@@ -97,6 +97,10 @@ body > div {
     z-index: 10;
 }
 
+.name-input.validation-error {
+    border-bottom: 1px solid red;
+}
+
 /**
  * Message-bar
  */

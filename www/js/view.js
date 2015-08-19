@@ -32,13 +32,11 @@
         }
 
         this.showNotice = function(message) {
-            var shouldUpdateScroll = shouldScrollAutomatically();
+            ensureNewMessagesAreVisible();
 
             $flashNotice.text(message);
             $flashNoticePusher.show();
             $flashNotice.show();
-
-            if (shouldUpdateScroll) { window.setTimeout(scrollToBottom, 10); }
         }
 
         this.hideNotice = function() {
@@ -92,24 +90,31 @@
         function addToMessageList($elem, historicalMessages) {
             if (!$elem) { return; } // ignore empty elements i.e. presence messages we won't display such as updates
 
-            var shouldUpdateScroll = shouldScrollAutomatically();
+            ensureNewMessagesAreVisible();
 
             if (historicalMessages) {
                 $messageList.prepend($elem);
             } else {
                 $messageList.append($elem);
             }
-
-            if (shouldUpdateScroll) { window.setTimeout(scrollToBottom, 10); }
         }
 
         // If near the bottom, then scroll new message into focus automatically
-        function shouldScrollAutomatically() {
-            return $(window).scrollTop() + $(window).height() >= $(document).height() - 100;
+        function ensureNewMessagesAreVisible() {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                window.setTimeout(function() {
+                    $('html, body').scrollTop($(document).height() - $(window).height());
+                }, 50);
+            }
         }
 
-        function scrollToBottom() {
-            $('html, body').scrollTop($(document).height() - $(window).height());
+        function updateMembersTyping(members) {
+            if (members.length == 0) {
+                $membersTypingNotification.hide();
+            } else {
+                ensureNewMessagesAreVisible();
+                $membersTypingNotification.text(Utils.formatTypingNotification(members)).show();
+            }
         }
 
         // Updates the members count in the lozenge and their names in the 'Members' popup dialog
@@ -118,14 +123,14 @@
 
             // Typing members are users who have 'isTyping' set to true in their presence data
             var typingMembersNames = members.filter(function (member) {
-                return member && member.data && member.data.isTyping;
+                return member && member.data && member.data.isTyping && (member.clientId != view.clientId);
             }).map(function (member) {
                 return member.clientId;
             });
-            var text = Utils.formatTypingNotification(typingMembersNames);
+            updateMembersTyping(typingMembersNames);
 
             $membersCountLozenge.text(members.length);
-            $membersTypingNotification.text(text);
+
 
             // Clear the member list and replace it with a list with their names
             $membersList.html('').append(members.map(function (member) {

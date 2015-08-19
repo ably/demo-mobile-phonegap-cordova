@@ -76,7 +76,7 @@ $(document).ready(function () {
     // Sends a 'user has stopped typing' notification, after 2 seconds have passed since the last keystroke.
     $messageText.on('keyup', _.debounce(function () {
         app.sendTypingNotification(false);
-    }, 2000));
+    }, 5000));
 
     $membersLozenge.on('click', function () {
         if (!$(this).hasClass('disabled')) {

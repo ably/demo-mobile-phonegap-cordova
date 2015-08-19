@@ -11,6 +11,14 @@
     margin-bottom: 44px;
 }
 
+#members-typing-indication {
+    padding: 10px;
+    font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: normal;
+    color: #999;
+    font-size: 12px;
+}
+
 #loading-overlay {
     display: none;
     z-index: 999;

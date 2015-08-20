@@ -25,11 +25,15 @@ $(document).ready(function () {
         // * connect back to Ably when moving back to the foreground
         document.addEventListener('deviceready', function() {
             document.addEventListener('pause', function () {
-                app.disconnect();
+                if (app.initialized()) {
+                    app.disconnect();
+                }
             });
 
             document.addEventListener('resume', function () {
-                app.reconnect();
+                if (app.initialized()) {
+                    app.reconnect();
+                }
             });
         });
     }
@@ -90,6 +94,8 @@ $(document).ready(function () {
     });
 
     window.onunload = window.onbeforeunload = function () {
-        app.disconnect();
+        if (app.initialized()) {
+            app.disconnect();
+        }
     };
 });

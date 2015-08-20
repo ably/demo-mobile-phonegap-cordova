@@ -323,3 +323,16 @@ input[type=submit]:hover {
     text-decoration: none;
     border: none;
 }
+
+input[type=submit]:disabled:hover, input[type=submit]:disabled {
+    background: #adadad;
+    background-image: -webkit-linear-gradient(top, #adadad, #757575);
+    background-image: -moz-linear-gradient(top, #adadad, #757575);
+    background-image: -ms-linear-gradient(top, #adadad, #757575);
+    background-image: -o-linear-gradient(top, #adadad, #757575);
+    background-image: linear-gradient(to bottom, #adadad, #757575);
+    text-decoration: none;
+    border: none;
+    color: #AAA;
+    cursor: normal;
+}

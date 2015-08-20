@@ -154,7 +154,6 @@
             $messageFormInputs.prop('disabled', false);
             $membersCountLozenge.show();
             $membersLozenge.removeClass('disabled');
-            $sendMessageButton.val('Send');
         }
 
         function disableInterface(reason) {
@@ -162,7 +161,6 @@
             $messageFormInputs.prop('disabled', true);
             $membersCountLozenge.hide();
             $membersLozenge.addClass('disabled');
-            $sendMessageButton.val('disconnected');
         }
 
         // Connection state change handler

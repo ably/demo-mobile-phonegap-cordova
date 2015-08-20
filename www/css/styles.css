@@ -163,7 +163,7 @@ body > div {
     -ms-user-select: none;
     user-select: none;
 }
-.message-presence .text{
+.message-presence .text {
     -webkit-border-radius: 15px;
     -moz-border-radius: 15px;
     border-radius: 15px;
@@ -172,6 +172,13 @@ body > div {
     color: white;
     display: inline-block;
     font-size: 12px;
+    position: relative;
+}
+
+.message-presence .text .time {
+    position: absolute;
+    right: -55px;
+    color: #999;
 }
 
 /**

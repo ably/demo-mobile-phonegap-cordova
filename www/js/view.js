@@ -68,7 +68,8 @@
         }
 
         function presenceElem(presence) {
-            var actionText, $text, $div;
+            var actionText, $text,
+                dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(presence.timestamp));
 
             if (presence.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
                 actionText = 'entered';
@@ -84,7 +85,7 @@
             } else {
                 $text.text(presence.clientId + ' has ' + actionText + ' the channel');
             }
-
+            $text.append('<span class="time">' + dateAsLocalTime + '</span>');
             return $('<div class="message-presence">').append($text);
         }
 

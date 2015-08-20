@@ -39,7 +39,7 @@ $(document).ready(function () {
         ev.preventDefault();
 
         if ($name.val() === '') {
-            $name.attr('placeholder', 'Name is required').addClass('validation-error')
+            $name.attr('placeholder', 'Name is required').addClass('validation-error');
             return;
         }
 

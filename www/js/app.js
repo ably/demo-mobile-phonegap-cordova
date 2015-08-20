@@ -101,7 +101,7 @@
 
             app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
             app.joinChannel();
-        }
+        };
 
         // Publishes the given message data to Ably with the clientId embedded
         this.publishMessage = function (data) {
@@ -152,7 +152,7 @@
                     view.hideNotice();
                     displayHistory(messageHistory, presenceHistory);
                 }
-            }
+            };
 
             getMessagesHistory(function (messages) {
                 messageHistory = messages;
@@ -163,7 +163,7 @@
                 presenceHistory = presenceMessages;
                 displayIfReady();
             });
-        }
+        };
 
         // Explicitly reconnect to Ably and joins channel
         this.reconnect = function () {

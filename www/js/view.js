@@ -145,11 +145,11 @@
         this.showLoadingOverlay = function(message) {
             $loadingMessage.text(message || 'Loading...');
             $loadingOverlay.show();
-        }
+        };
 
         this.hideLoadingOverlay = function() {
             $loadingOverlay.hide();
-        }
+        };
 
         this.showNotice = function(message) {
             ensureNewMessagesAreVisible(function() {
@@ -158,12 +158,12 @@
 
             $flashNotice.text(message);
             $flashNotice.show();
-        }
+        };
 
         this.hideNotice = function() {
             $flashNotice.hide();
             $flashNoticePusher.hide();
-        }
+        };
 
         // Connection state change handler
         // * Disconnected / suspended: disable user input and display meaningful message
@@ -177,7 +177,7 @@
             } else if (state.current === 'connected') {
                 enableInterface();
             }
-        }
+        };
 
         this.showNewMessage = function (message) {
             addToMessageList(messageElem(message));
@@ -194,7 +194,7 @@
                 elem;
 
             for (var i = 0; i < messages.length; i++) {
-                message = messages[i]
+                message = messages[i];
                 if (message.action) {
                     elem = presenceElem(message);
                 } else {
@@ -202,7 +202,7 @@
                 }
                 addToMessageList(elem, true);
             }
-        }
+        };
 
         // Generic error handler - alert()s an error, if one exists
         this.showError = function (err) {

@@ -40,8 +40,8 @@
         function getMessagesHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards'
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                direction: 'backwards',
+                untilAttach: true
             };
 
             app.ablyChannel.history(params, function (err, result) {
@@ -58,8 +58,8 @@
         function getPresenceHistory(callback) {
             var params = {
                 direction: 'backwards',
-                limit: Constants.HISTORY_MESSAGES_LIMIT
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                limit: Constants.HISTORY_MESSAGES_LIMIT,
+                untilAttach: true
             };
 
             app.ablyChannel.presence.history(params, function (err, messages) {
@@ -68,7 +68,7 @@
                     return;
                 }
 
-                callback(messages.items.slice(1)); // TODO: Remove slice once untilAttach implemented to avoid duplicate you have entered
+                callback(messages.items);
             })
         }
 

@@ -36,27 +36,6 @@
             view.prependHistoricalMessages(all);
         }
 
-        // Initializes an Ably realtime instance using the clientId
-        // * Connect using Token Request
-        // * Attach channel
-        // * Notify caller via success callback
-        this.initialize = function (clientId) {
-            app.clientId = clientId;
-            view.clientId = clientId;
-
-            app.ably = new Ably.Realtime({
-                authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
-                clientId: clientId,
-                transports: ['web_socket'], // TODO: Do not lock into the WS transport, use any transport available
-                log: { level: 4 }
-            });
-            app.ably.connection.on(view.updateConnectionState);
-            app.ably.connection.on('failed', view.showError);
-
-            app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
-            app.joinChannel();
-        }
-
         // Retrieve chat messages history
         function getMessagesHistory(callback) {
             var params = {
@@ -91,6 +70,37 @@
 
                 callback(messages.items.slice(1)); // TODO: Remove slice once untilAttach implemented to avoid duplicate you have entered
             })
+        }
+
+        function channelStateLost() {
+            // remove all listeners as we will set them up again once the connection is restored
+            app.ablyChannel.unsubscribe();
+            app.ablyChannel.presence.off();
+
+            app.ably.connection.once('connected', function() {
+                app.joinChannel();
+            });
+        }
+
+        // Initializes an Ably realtime instance using the clientId
+        // * Connect using Token Request
+        // * Attach channel
+        // * Notify caller via success callback
+        this.initialize = function (clientId) {
+            app.clientId = clientId;
+            view.clientId = clientId;
+
+            app.ably = new Ably.Realtime({
+                authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
+                clientId: clientId,
+                transports: ['web_socket'], // TODO: Do not lock into the WS transport, use any transport available
+                log: { level: 4 }
+            });
+            app.ably.connection.on(view.updateConnectionState);
+            app.ably.connection.on('failed', view.showError);
+
+            app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
+            app.joinChannel();
         }
 
         // Publishes the given message data to Ably with the clientId embedded
@@ -152,16 +162,6 @@
             getPresenceHistory(function (presenceMessages) {
                 presenceHistory = presenceMessages;
                 displayIfReady();
-            });
-        }
-
-        function channelStateLost() {
-            // remove all listeners as we will set them up again once the connection is restored
-            app.ablyChannel.unsubscribe();
-            app.ablyChannel.presence.off();
-
-            app.ably.connection.once('connected', function() {
-                app.joinChannel();
             });
         }
 

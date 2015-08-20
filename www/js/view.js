@@ -22,29 +22,6 @@
         var $membersList = $('#members-list');
         var $membersListPopup = $('#members-list-popup');
 
-        this.showLoadingOverlay = function(message) {
-            $loadingMessage.text(message || 'Loading...');
-            $loadingOverlay.show();
-        }
-
-        this.hideLoadingOverlay = function() {
-            $loadingOverlay.hide();
-        }
-
-        this.showNotice = function(message) {
-            ensureNewMessagesAreVisible(function() {
-                $flashNoticePusher.show();
-            });
-
-            $flashNotice.text(message);
-            $flashNotice.show();
-        }
-
-        this.hideNotice = function() {
-            $flashNotice.hide();
-            $flashNoticePusher.hide();
-        }
-
         function publishedFromSelf(message) {
             return message.clientId == view.clientId;
         }
@@ -161,6 +138,29 @@
             $messageFormInputs.prop('disabled', true);
             $membersCountLozenge.hide();
             $membersLozenge.addClass('disabled');
+        }
+
+        this.showLoadingOverlay = function(message) {
+            $loadingMessage.text(message || 'Loading...');
+            $loadingOverlay.show();
+        }
+
+        this.hideLoadingOverlay = function() {
+            $loadingOverlay.hide();
+        }
+
+        this.showNotice = function(message) {
+            ensureNewMessagesAreVisible(function() {
+                $flashNoticePusher.show();
+            });
+
+            $flashNotice.text(message);
+            $flashNotice.show();
+        }
+
+        this.hideNotice = function() {
+            $flashNotice.hide();
+            $flashNoticePusher.hide();
         }
 
         // Connection state change handler

@@ -2,18 +2,19 @@
 
 $(document).ready(function () {
     Origami.fastclick(document.body);
-    var $mainAppView = $('#main-app-view');
-    var $enterNameView = $('#enter-name-view');
-    var $messageText = $('#message-text');
-    var $name = $('#name');
-    var $nameForm = $('#name-form');
-    var $messageForm = $('#message-form');
-    var $membersLozenge = $mainAppView.find('#members-lozenge');
-    var $membersListPopup = $('#members-list-popup');
-    var $dialogCloseButton = $('#dialog-close');
 
-    var view = new View();
-    var app = new ChatApp(view);
+    var $mainAppView = $('#main-app-view'),
+        $enterNameView = $('#enter-name-view'),
+        $messageText = $('#message-text'),
+        $name = $('#name'),
+        $nameForm = $('#name-form'),
+        $messageForm = $('#message-form'),
+        $membersLozenge = $mainAppView.find('#members-lozenge'),
+        $membersListPopup = $('#members-list-popup'),
+        $dialogCloseButton = $('#dialog-close');
+
+    var view = new View(),
+        app = new ChatApp(view);
 
     // Helper to access the app from the dev console
     window.app = app;

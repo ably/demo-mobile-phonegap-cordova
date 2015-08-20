@@ -7,32 +7,32 @@
     // * Displaying chat messages
     // * Displaying members count and mentioning
     function View() {
-        var view = this;
-        var $messageList = $('#message-list');
-        var $loadingOverlay = $('#loading-overlay');
-        var $loadingMessage = $('#loading-message');
-        var $flashNotice = $('#flash-notice');
-        var $flashNoticePusher = $('#flash-notice-page-shifter');
-        var $messageFormInputs = $('#message-form :input');
-        var $sendMessageButton = $('#submit-message');
-        var $messageText = $('#message-text');
-        var $membersLozenge = $('#members-lozenge');
-        var $membersCountLozenge = $('#members-count');
-        var $membersTypingNotification = $('#members-typing-indication');
-        var $membersList = $('#members-list');
-        var $membersListPopup = $('#members-list-popup');
+        var view = this,
+            $messageList = $('#message-list'),
+            $loadingOverlay = $('#loading-overlay'),
+            $loadingMessage = $('#loading-message'),
+            $flashNotice = $('#flash-notice'),
+            $flashNoticePusher = $('#flash-notice-page-shifter'),
+            $messageFormInputs = $('#message-form :input'),
+            $sendMessageButton = $('#submit-message'),
+            $messageText = $('#message-text'),
+            $membersLozenge = $('#members-lozenge'),
+            $membersCountLozenge = $('#members-count'),
+            $membersTypingNotification = $('#members-typing-indication'),
+            $membersList = $('#members-list'),
+            $membersListPopup = $('#members-list-popup');
 
         function publishedFromSelf(message) {
             return message.clientId == view.clientId;
         }
 
         function messageElem(message) {
-            var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp));
-            var $author = $('<span class="author">').text(message.clientId);
-            var $time = $('<div class="time">').text(dateAsLocalTime);
-            var $message = $('<div class="message">').text(message.data);
-            var $back = $('<div class="back">');
-            var $li = $('<div class="message-bubble">');
+            var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp)),
+                $author = $('<span class="author">').text(message.clientId),
+                $time = $('<div class="time">').text(dateAsLocalTime),
+                $message = $('<div class="message">').text(message.data),
+                $back = $('<div class="back">'),
+                $li = $('<div class="message-bubble">');
 
             $back.append($author, $time, $message);
             $li.append($back);
@@ -45,7 +45,8 @@
         }
 
         function presenceElem(presence) {
-            var actionText, $text,
+            var actionText,
+                $text,
                 dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(presence.timestamp));
 
             if (presence.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
@@ -114,8 +115,9 @@
 
             // Clear the member list and replace it with a list with their names
             $membersList.html('').append(members.map(function (member) {
-                var memberName = member.clientId;
-                var $li = $('<li><a href="javascript:void(0)">').text(memberName);
+                var memberName = member.clientId,
+                    $li = $('<li><a href="javascript:void(0)">').text(memberName);
+
                 $li.on('click', function () {
                     $messageText.val(leftTrim($messageText.val() + ' @' + memberName + ' '));
                     $membersListPopup.hide();
@@ -188,7 +190,9 @@
         };
 
         this.prependHistoricalMessages = function (messages) {
-            var message, elem;
+            var message,
+                elem;
+
             for (var i = 0; i < messages.length; i++) {
                 message = messages[i]
                 if (message.action) {

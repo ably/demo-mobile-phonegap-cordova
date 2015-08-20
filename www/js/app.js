@@ -119,8 +119,8 @@
         // Joins the channel and registers presence
         // Once present, history is loaded and displayed
         this.joinChannel = function () {
-            var channel = app.ablyChannel;
-            var presence = channel.presence;
+            var channel = app.ablyChannel,
+                presence = channel.presence;
 
             view.resetMessages();
             channel.attach(); // if joinChannel called a second time, an explicit attach may be required

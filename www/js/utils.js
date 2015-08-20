@@ -38,6 +38,7 @@
 
     window.Utils = {
         formatDateAsLocalTime: formatDateAsLocalTime,
-        formatTypingNotification: formatTypingNotification
+        formatTypingNotification: formatTypingNotification,
+        leftTrim: leftTrim
     };
 }(window));

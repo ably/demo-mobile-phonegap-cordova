@@ -119,7 +119,7 @@
                     $li = $('<li><a href="javascript:void(0)">').text(memberName);
 
                 $li.on('click', function () {
-                    $messageText.val(leftTrim($messageText.val() + ' @' + memberName + ' '));
+                    $messageText.val(Utils.leftTrim($messageText.val() + ' @' + memberName + ' '));
                     $membersListPopup.hide();
                     $messageText.focus();
                 });

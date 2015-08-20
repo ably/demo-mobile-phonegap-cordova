@@ -22,18 +22,19 @@
             return '';
         }
 
-        // Single user: "Alice is typing"
+        // Single user: "Alice is typing..."
         if (typingMembers.length == 1) {
-            return typingMembers[0] + ' is typing';
+            return typingMembers[0] + ' is typing...';
         }
 
-        // More than one: "Alice, Bob, Carol are typing"
-        if (typingMembers.length < 4) {
-            return typingMembers.join(', ') + ' are typing';
+        // Three of less: "Alice, Bob and Carol are typing..."
+        if (typingMembers.length <= 3) {
+            return typingMembers.slice(0, typingMembers.length-1).join(', ') + ' and ' + typingMembers.slice(typingMembers.length-1) + ' are typing...';
         }
 
-        // "Alice, Bob, Carol and 3 others are typing"
-        return typingMembers.join(', ') + ' and ' + (typingMembers.length - 3) + ' others are typing.';
+        // Four or more: "Alice, Bob, Carol and 3 others are typing..."
+        var others = (typingMembers.length - 3);
+        return typingMembers.slice(0, 3).join(', ') + ' and ' + others + ' other' + (others > 1 ? 's are' : ' is') + ' typing...';
     }
 
     window.Utils = {

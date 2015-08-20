@@ -47,7 +47,7 @@
             app.ably = new Ably.Realtime({
                 authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
                 clientId: clientId,
-                transports: ['web_socket'],
+                transports: ['web_socket'], // TODO: Do not lock into the WS transport, use any transport available
                 log: { level: 4 }
             });
             app.ably.connection.on(view.updateConnectionState);

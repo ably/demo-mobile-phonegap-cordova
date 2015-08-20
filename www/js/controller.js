@@ -15,7 +15,7 @@ $(document).ready(function () {
     var view = new View();
     var app = new ChatApp(view);
 
-    // DO NOT COMMIT THIS
+    // Helper to access the app from the dev console
     window.app = app;
 
     if (window.isRunningOnMobile) {

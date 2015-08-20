@@ -167,6 +167,11 @@
 
         // Explicitly reconnect to Ably and joins channel
         this.reconnect = function () {
+            // Don't reconnect if clientId is empty
+            if(!app.clientId) {
+                return;
+            }
+
             view.hideLoadingOverlay();
             view.showNotice('Connecting to Ably...');
 

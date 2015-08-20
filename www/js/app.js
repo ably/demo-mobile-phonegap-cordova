@@ -113,6 +113,7 @@
             var presence = channel.presence;
 
             view.resetMessages();
+            channel.attach(); // if joinChannel called a second time, an explicit attach may be required
 
             channel.subscribe(view.showNewMessage);
             presence.on(membersChanged);
@@ -167,8 +168,8 @@
         // Explicitly reconnect to Ably and joins channel
         this.reconnect = function () {
             view.hideLoadingOverlay();
-            app.ably.connection.connect();
-            app.joinChannel();
+            view.showNotice('Connecting to Ably...');
+            app.ably.connection.connect(); // channel automatically reattaches due to channelStateLost()
         };
 
         // Leaves channel by disconnecting from Ably

@@ -95,14 +95,14 @@
 
         // Publishes the given message data to Ably with the clientId embedded
         this.publishMessage = function (data) {
-            view.showLoadingOverlay('Sending...');
+            view.showNotice('Sending message');
 
             app.ablyChannel.publish({ data: data, clientId: app.clientId }, function (err) {
                 if (err) {
                     view.showError(err);
                     return;
                 }
-                view.hideLoadingOverlay();
+                view.hideNotice();
             });
         };
 

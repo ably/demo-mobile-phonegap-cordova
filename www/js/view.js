@@ -32,10 +32,11 @@
         }
 
         this.showNotice = function(message) {
-            ensureNewMessagesAreVisible();
+            ensureNewMessagesAreVisible(function() {
+                $flashNoticePusher.show();
+            });
 
             $flashNotice.text(message);
-            $flashNoticePusher.show();
             $flashNotice.show();
         }
 
@@ -100,10 +101,11 @@
         }
 
         // If near the bottom, then scroll new message into focus automatically
-        function ensureNewMessagesAreVisible() {
+        function ensureNewMessagesAreVisible(callback) {
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                 window.setTimeout(function() {
                     $('html, body').scrollTop($(document).height() - $(window).height());
+                    if (callback) { callback(); }
                 }, 50);
             }
         }

@@ -19,25 +19,6 @@
     font-size: 12px;
 }
 
-#loading-overlay {
-    display: none;
-    z-index: 999;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.8);
-    font-size: 3em;
-    text-align: center;
-}
-
-#loading-overlay span {
-    padding: 25%;
-    display: block;
-}
-
 #main-app-view {
     display: none;
 }

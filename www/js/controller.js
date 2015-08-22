@@ -50,7 +50,6 @@ $(document).ready(function () {
         $enterNameView.hide();
         $mainAppView.show();
 
-        view.showLoadingOverlay('Connecting to Ably...');
         app.initialize($name.val());
     });
 

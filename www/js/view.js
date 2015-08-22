@@ -9,7 +9,6 @@
     function View() {
         var view = this,
             $messageList = $('#message-list'),
-            $loadingOverlay = $('#loading-overlay'),
             $loadingMessage = $('#loading-message'),
             $flashNotice = $('#flash-notice'),
             $flashNoticePusher = $('#flash-notice-page-shifter'),
@@ -142,15 +141,6 @@
             $membersLozenge.addClass('disabled');
         }
 
-        this.showLoadingOverlay = function(message) {
-            $loadingMessage.text(message || 'Loading...');
-            $loadingOverlay.show();
-        };
-
-        this.hideLoadingOverlay = function() {
-            $loadingOverlay.hide();
-        };
-
         this.showNotice = function(message) {
             ensureNewMessagesAreVisible(function() {
                 $flashNoticePusher.show();
@@ -174,6 +164,8 @@
                 disableInterface(state.reason.message);
             } else if (state.current === 'closed') {
                 disableInterface('Connection is closed as a result of a user interaction');
+            } else if (state.current === 'connecting') {
+                disableInterface('Connecting to Ably...');
             } else if (state.current === 'connected') {
                 enableInterface();
             }
@@ -214,7 +206,6 @@
                     errorMessage += "\n" + JSON.stringify(err);
                 }
             }
-            view.hideLoadingOverlay();
         };
 
         // Clears the messages list

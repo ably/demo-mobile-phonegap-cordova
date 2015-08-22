@@ -82,6 +82,12 @@
             });
         }
 
+        function attemptReconnect(duration) {
+            window.setTimeout(function() {
+                app.ably.connection.connect();
+            }, duration);
+        }
+
         // Initializes an Ably realtime instance using the clientId
         // * Connect using Token Request
         // * Attach channel
@@ -98,6 +104,10 @@
             });
             app.ably.connection.on(view.updateConnectionState);
             app.ably.connection.on('failed', view.showError);
+
+            // Be more aggressive in reconnect attempts, after 5s when disconnected, after 15s when suspended (connection is suspended after 120s of being disconnected)
+            app.ably.connection.on('disconnected', function() { attemptReconnect(5000); });
+            app.ably.connection.on('suspended',    function() { attemptReconnect(15000); });
 
             app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
             app.joinChannel();

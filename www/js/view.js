@@ -161,7 +161,7 @@
         // * Connected: re-enable input and hide message
         this.updateConnectionState = function(state) {
             if (state.current === 'disconnected' || state.current === 'suspended') {
-                disableInterface(state.reason.message);
+                disableInterface("Reconnecting....");
             } else if (state.current === 'closed') {
                 disableInterface('Connection is closed as a result of a user interaction');
             } else if (state.current === 'connecting') {

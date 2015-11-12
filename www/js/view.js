@@ -1,56 +1,125 @@
 (function (window) {
     "use strict";
 
-    // Constructs a View, containing various functions related to the UI:
-    // * Triggering loading overlay
-    // * Displaying presence messages
-    // * Displaying chat messages
-    // * Displaying members count and mentioning
-    function View() {
-        var view = this,
-            $nameForm = $('#name-form'),
-            $nameField = $nameForm.find('input.form-text'),
-            $joinButton = $nameForm.find('a.form-button'),
-            $messageList = $('#message-list'),
-            $loadingMessage = $('#loading-message'),
-            $flashNotice = $('#flash-notice'),
-            $flashNoticePusher = $('#flash-notice-page-shifter'),
-            $messageFormInputs = $('#message-form :input'),
-            $sendMessageButton = $('#submit-message'),
-            $messageText = $('#message-text'),
-            $membersLozenge = $('#members-lozenge'),
-            $membersCountLozenge = $('#members-count'),
-            $membersTypingNotification = $('#members-typing-indication'),
-            $membersList = $('#members-list'),
-            $membersListPopup = $('#members-list-popup'),
+    MicroEvent.mixin(View); /* add EventEmitter to View class i.e. bind and trigger */
 
-            $login = $('#js-login'),
-            $messages = $('#js-messages'),
-            $status = $('#js-status');
+    /*
+     * View class is responsible for updating the HTML UI and capturing all events
+     */
+    function View() {
+        var view = this;
+
+        var MAX_COLORS = 8,
+            NOTICE_TYPES = 'offline typing sending loading'.split(' '),
+            otherUserColours = {};
+
+        /* login elements */
+        var $loginView = $('#js-login'),
+            $loginForm = $loginView.find('#name-form'),
+            $loginNameField = $loginView.find('input.form-text'),
+            $loginButton = $loginView.find('a.form-button');
+
+        /* messages list */
+        var $messageThreadView = $('#js-messages'),
+            $messagesList = $messageThreadView.find('.thread');
+
+        /* panel that is sticky with input field for new messages and menu of users */
+        var $messagePanel = $('#js-message-panel'),
+            $msgPanelStatus = $messagePanel.find('.msg-status'),
+            $msgPanelStatusText = $msgPanelStatus.find('.msg-status-text'),
+            $msgPanelPeopleCounter = $messagePanel.find('.msg-people'),
+            $msgPanelPeopleCounterText = $msgPanelPeopleCounter.find('.icon-person'),
+            $msgPanelPeopleList = $messagePanel.find('.user-menu .user-list'),
+            $msgPanelMenuButton = $messagePanel.find('.msg-menu a'),
+            $msgPanelInput = $messagePanel.find('.form-message');
+
+        function initialize() {
+            $loginForm.on('submit', function(event) {
+                event.preventDefault();
+                view.trigger('login.submit', $loginNameField.val());
+            });
+
+            $loginButton.on('click', function() {
+                $loginForm.submit();
+            });
+
+            $msgPanelInput.on('keydown', function(event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    view.trigger('message.send', $msgPanelInput.val());
+                } else {
+                    view.trigger('message.keydown', event.keyCode);
+                }
+            });
+
+            $msgPanelInput.on('keyup', function(event) {
+                view.trigger('message.keyup', event.keyCode);
+            });
+
+            setupPeopleListToggler();
+        }
+
+        /* There are 8 colour slots, rotate between colours for each user and assign them an alphabetical letter */
+        function getPresentationForUser(user) {
+            var indexLetters = 'ABCDEFGHJIJKLMNOPQRSTUVWXYZ';
+
+            if (otherUserColours[user]) {
+                return otherUserColours[user];
+            } else {
+                var colourIndex = (Object.keys(otherUserColours).length + 1) % MAX_COLORS,
+                    letterIndex = (Object.keys(otherUserColours).length) % indexLetters.length,
+                    letter = indexLetters.slice(letterIndex, letterIndex+1);
+
+                otherUserColours[user] = {
+                    colour: colourIndex+1, /* 1-8 */
+                    letter: letter
+                }
+                return otherUserColours[user];
+            }
+        }
+
+        function togglePeopleListVisibility(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            if ($messagePanel.hasClass("show-user-menu")) {
+                $(document).off("click", togglePeopleListVisibility);
+            } else {
+                $(document).one("click", togglePeopleListVisibility);
+            }
+            $messagePanel.toggleClass("show-user-menu");
+        }
+
+        /* Toggle the people list menu */
+        function setupPeopleListToggler() {
+            $msgPanelMenuButton.on('click', togglePeopleListVisibility);
+            $msgPanelPeopleCounter.on('click', togglePeopleListVisibility);
+        }
 
         function publishedFromSelf(message) {
             return message.clientId == view.clientId;
         }
 
-        function messageElem(message) {
+        function messagePartial(message) {
             var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp)),
-                $author = $('<span class="author">').text(message.clientId),
-                $time = $('<div class="time">').text(dateAsLocalTime),
-                $message = $('<div class="message">').text(message.data),
-                $back = $('<div class="back">'),
-                $li = $('<div class="message-bubble">');
+                $box = $('<span class="thread-box">'),
+                $li = $('<li class="thread-event user">').addClass("theme-" + getPresentationForUser(message.clientId).colour);
 
-            $back.append($author, $time, $message);
-            $li.append($back);
+            $box.append($('<span class="handle">').text(message.clientId));
+            $box.append($('<span class="time">').text(dateAsLocalTime));
+            $box.append($('<span class="text">').text(message.data));
+            $li.append($box);
 
             if (publishedFromSelf(message)) {
-                return $li.addClass('sent');
+                return $li.addClass('me');
             } else {
-                return $li.addClass('received');
+                return $li.addClass('not-me');
             }
         }
 
-        function presenceElem(presence) {
+        function presencePartial(presence) {
             var actionText,
                 $text,
                 dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(presence.timestamp));
@@ -64,13 +133,13 @@
             }
 
             $text = $('<span class="text">');
+
             if (publishedFromSelf(presence)) {
-                $text.text('you ' + actionText + ' the channel');
+                $text.text('you ' + actionText + ' the channel ' + dateAsLocalTime);
             } else {
-                $text.text(presence.clientId + ' has ' + actionText + ' the channel');
+                $text.text(presence.clientId + ' ' + actionText + ' the channel ' + dateAsLocalTime);
             }
-            $text.append('<span class="time">' + dateAsLocalTime + '</span>');
-            return $('<div class="message-presence">').append($text);
+            return $('<li class="system-event ' + actionText + '">').append($text);
         }
 
         function addToMessageList($elem, historicalMessages) {
@@ -79,9 +148,9 @@
             ensureNewMessagesAreVisible();
 
             if (historicalMessages) {
-                $messageList.prepend($elem);
+                $messagesList.prepend($elem);
             } else {
-                $messageList.append($elem);
+                $messagesList.append($elem);
             }
         }
 
@@ -97,10 +166,10 @@
 
         function updateMembersTyping(members) {
             if (members.length == 0) {
-                $membersTypingNotification.hide();
+                view.hideNotice('typing');
             } else {
                 ensureNewMessagesAreVisible();
-                $membersTypingNotification.text(Utils.formatTypingNotification(members)).show();
+                view.showNotice('typing', Utils.formatTypingNotification(members));
             }
         }
 
@@ -108,86 +177,158 @@
         function updateMembers(members) {
             members = members || [];
 
+            var uniqueMembers = {}, member, memberSelf;
+            for (var i = 0; i < members.length; i++) {
+                member = members[i];
+                if (!publishedFromSelf(member) && !uniqueMembers[member.clientId]) {
+                    uniqueMembers[member.clientId] = member;
+                } else if (publishedFromSelf(member) && !memberSelf) {
+                    memberSelf = member;
+                }
+            }
+
+            members = Object.keys(uniqueMembers).map(function(memberClientId) {
+                return uniqueMembers[memberClientId];
+            });
+
             // Typing members are users who have 'isTyping' set to true in their presence data
             var typingMembersNames = members.filter(function (member) {
-                return member && member.data && member.data.isTyping && (member.clientId != view.clientId);
+                return member && member.data && member.data.isTyping;
             }).map(function (member) {
                 return member.clientId;
             });
             updateMembersTyping(typingMembersNames);
 
-            $membersCountLozenge.text(members.length);
-
+            $msgPanelPeopleCounterText.text(members.length + (memberSelf ? 1 : 0));
 
             // Clear the member list and replace it with a list with their names
-            $membersList.html('').append(members.map(function (member) {
-                var memberName = member.clientId,
-                    $li = $('<li><a href="javascript:void(0)">').text(memberName);
+            $msgPanelPeopleList.html('');
 
-                $li.on('click', function () {
-                    $messageText.val(Utils.leftTrim($messageText.val() + ' @' + memberName + ' '));
-                    $membersListPopup.hide();
-                    $messageText.focus();
+            var addMember = function(member, isSelf) {
+                var memberName = member.clientId,
+                    $link = $('<a>').attr("href", "#" + memberName),
+                    $name = $('<span>').text(memberName),
+                    $li = $('<li class="user-item">'),
+                    colourIndex = getPresentationForUser(memberName).colour,
+                    letter = getPresentationForUser(memberName).letter;
+
+                if (isSelf) {
+                    $link.append($('<em>'));
+                    $name.append('<span class="me">(me)</span>');
+                } else {
+                    $link.append($('<em>').text(letter));
+                    $li.addClass("theme-" + colourIndex);
+                }
+                $link.append($name);
+                $li.append($link);
+
+                $li.one('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    $msgPanelInput.val(Utils.leftTrim($msgPanelInput.val() + ' @' + memberName + ' '));
+                    $msgPanelInput.focus();
+
+                    togglePeopleListVisibility();
                 });
 
-                return $li;
-            }));
+                $msgPanelPeopleList.append($li);
+            }
+
+            for (var i = 0; i < members.length; i++) {
+                addMember(members[i]);
+            }
+
+            if (memberSelf) { addMember(memberSelf, true); }
         }
 
-        view.enableInterface = function() {
-            view.hideNotice();
-            $messageFormInputs.prop('disabled', false);
-            $membersCountLozenge.show();
-            $membersLozenge.removeClass('disabled');
+        this.enableInterface = function() {
+            $('body').removeClass('system-offline');
+            view.hideNotice('offline');
+            $msgPanelInput.prop('disabled', false);
+            $msgPanelPeopleCounter.show();
+            $msgPanelMenuButton.show();
         }
 
         this.disableInterface = function(reason) {
-            view.showNotice(reason);
-            $messageFormInputs.prop('disabled', true);
-            $membersCountLozenge.hide();
-            $membersLozenge.addClass('disabled');
+            $('body').addClass('system-offline');
+            view.showNotice('offline', reason);
+            $msgPanelInput.prop('disabled', true);
+            $msgPanelPeopleCounter.hide();
+            $msgPanelMenuButton.hide();
         }
 
         this.joinAndAwaitConnect = function() {
-            $nameField.addClass('connecting');
-            $joinButton.addClass('connecting');
+            $loginNameField.addClass('connecting');
+            $loginButton.addClass('connecting');
         }
 
         this.joinSuccessful = function() {
-            $login.addClass('hidden');
-            $messages.removeClass('hidden');
-            $status.removeClass('hidden');
-        }
-
-        this.nameVal = function() {
-            return $nameField.val();
+            $loginView.addClass('hidden');
+            $messageThreadView.removeClass('hidden');
+            $messagePanel.removeClass('hidden');
         }
 
         this.showNameValidationError = function() {
-            $nameField.attr('placeholder', '@handle is required').addClass('validation-error');
+            $loginNameField.attr('placeholder', '@handle is required').addClass('validation-error');
         }
 
-        this.showNotice = function(message) {
-            ensureNewMessagesAreVisible(function() {
-                $flashNoticePusher.show();
-            });
+        /* Keep a simple backlog of notices so that newer notices are
+           shown, but when they are hidden, the older one remains */
+        var noticeBacklog = [];
+        function showNoticesFromBacklog() {
+            var notice = noticeBacklog[noticeBacklog.length - 1];
+            if (!notice) {
+                $msgPanelStatus.fadeOut(200, function() {
+                    NOTICE_TYPES.map(function(type) {
+                        $messagePanel.removeClass("system-" + type);
+                    });
+                    $msgPanelStatus.show();
+                });
+                return;
+            }
 
-            $flashNotice.text(message);
-            $flashNotice.show();
+            NOTICE_TYPES.map(function(type) {
+                if (type == notice.type) {
+                    $messagePanel.addClass("system-" + type);
+                } else {
+                    $messagePanel.removeClass("system-" + type);
+                }
+            });
+            $msgPanelStatusText.text(notice.message);
+        }
+
+        this.showNotice = function(type, message) {
+            if (NOTICE_TYPES.indexOf(type) < 0) {
+                throw "Invalid notice type: " + type;
+            }
+            noticeBacklog.push({ type: type, message: message });
+            showNoticesFromBacklog();
         };
 
-        this.hideNotice = function() {
-            $flashNotice.hide();
-            $flashNoticePusher.hide();
+        this.hideNotice = function(type) {
+            var filteredBacklog = [],
+                notice, haveRemovedNotice;
+
+            for (var i = noticeBacklog.length - 1; i >= 0; i--) {
+                var notice = noticeBacklog[i];
+                if (!haveRemovedNotice && (notice.type == type)) {
+                    haveRemovedNotice = true;
+                } else {
+                    filteredBacklog.unshift(notice);
+                }
+            }
+            noticeBacklog = filteredBacklog;
+            showNoticesFromBacklog();
         };
 
         this.showNewMessage = function(message) {
-            addToMessageList(messageElem(message));
+            addToMessageList(messagePartial(message));
         };
 
         // Receives an Ably presence message and shows it on the screen
         this.showPresenceEvent = function(presenceMessage, members) {
-            addToMessageList(presenceElem(presenceMessage));
+            addToMessageList(presencePartial(presenceMessage));
             updateMembers(members);
         };
 
@@ -198,13 +339,18 @@
             for (var i = 0; i < messages.length; i++) {
                 message = messages[i];
                 if (message.action) {
-                    elem = presenceElem(message);
+                    elem = presencePartial(message);
                 } else {
-                    elem = messageElem(message);
+                    elem = messagePartial(message);
                 }
                 addToMessageList(elem, true);
             }
         };
+
+        this.resetMessageInput = function() {
+            $msgPanelInput.val('');
+            $msgPanelInput.focus();
+        }
 
         // Generic error handler - alert()s an error, if one exists
         this.showError = function (err) {
@@ -220,13 +366,15 @@
         };
 
         // Clears the messages list
-        this.resetMessages = function () {
-            $messageList.empty();
+        this.clearMessages = function () {
+            $messagesList.empty();
         };
 
         this.appLoaded = function() {
-            $login.removeClass('hidden');
-        }
+            $loginView.removeClass('hidden');
+        };
+
+        initialize();
     }
 
     window.View = View;

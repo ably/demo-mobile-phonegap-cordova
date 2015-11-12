@@ -11,7 +11,13 @@
         TOKEN_PATH: 'https://www.ably.io/ably-auth/token-request/demos'
     };
 
-    MicroEvent.mixin(ChatApp);
+    MicroEvent.mixin(ChatApp);  /* add EventEmitter to View class i.e. bind and trigger */
+
+    /*
+     *  ChatApp is the application class that provides high level functions for all
+     *  application operations such as retrieve messages, publish messages, update user status,
+     *  connect to Ably, emit events when connection state changes etc.
+     */
     function ChatApp(view) {
         var app = this;
 
@@ -43,8 +49,8 @@
         function getMessagesHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards'
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                direction: 'backwards' //, TODO: Reinstate untilAttach when working
+                // untilAttach: true
             };
 
             app.ablyChannel.history(params, function (err, result) {
@@ -60,9 +66,9 @@
         // Retrieve presence messages history
         function getPresenceHistory(callback) {
             var params = {
-                direction: 'backwards',
-                limit: Constants.HISTORY_MESSAGES_LIMIT
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                limit: Constants.HISTORY_MESSAGES_LIMIT,
+                direction: 'backwards' //, TODO: Reinstate untilAttach when working
+                // untilAttach: true
             };
 
             app.ablyChannel.presence.history(params, function (err, messages) {
@@ -91,6 +97,10 @@
             }, duration);
         }
 
+        function getTokenRequestUrl(clientId) {
+            return Constants.TOKEN_PATH + '?clientId=' + escape(clientId);
+        }
+
         // Initializes an Ably realtime instance using the clientId
         // * Connect using Token Request
         // * Attach channel
@@ -100,7 +110,7 @@
             view.clientId = clientId;
 
             app.ably = new Ably.Realtime({
-                authUrl: Constants.TOKEN_PATH,
+                authUrl: getTokenRequestUrl(clientId),
                 clientId: clientId,
                 log: { level: 2 }
             });
@@ -124,14 +134,14 @@
 
         // Publishes the given message data to Ably with the clientId embedded
         this.publishMessage = function (data) {
-            view.showNotice('Sending message');
+            view.showNotice('sending', 'Sending message');
 
             app.ablyChannel.publish({ data: data, clientId: app.clientId }, function (err) {
                 if (err) {
                     view.showError(err);
                     return;
                 }
-                view.hideNotice();
+                view.hideNotice('sending');
             });
         };
 
@@ -141,7 +151,9 @@
             var channel = app.ablyChannel,
                 presence = channel.presence;
 
-            view.resetMessages();
+            view.showNotice('loading', 'Hang on a sec, loading the chat history...');
+
+            view.clearMessages();
             channel.attach(); // if joinChannel called a second time, an explicit attach may be required
 
             channel.subscribe(view.showNewMessage);
@@ -152,7 +164,6 @@
                     view.showError(err);
                     return;
                 }
-                view.showNotice('Hang on a sec, loading channel history...');
                 app.loadHistory();
             });
 
@@ -167,7 +178,7 @@
 
             var displayIfReady = function() {
                 if (messageHistory && presenceHistory) {
-                    view.hideNotice();
+                    view.hideNotice('loading');
                     displayHistory(messageHistory, presenceHistory);
                 }
             };
@@ -214,39 +225,37 @@
 
     window.ChatApp = ChatApp;
 }(window));
-;/* Controller sets up the view and app  */
-
+;/*
+ * Controller.js is responsible for setting up the View and App classes
+ * and brokering all operations between all components of the app
+ */
 $(document).ready(function () {
+    var view = new View(),
+        app  = new ChatApp(view);
+
+    // Helpers to access the app from the dev console
+    window.ablyApp = app;
+    window.ablyView = view;
+
     Origami.fastclick(document.body);
 
-    var $mainAppView = $('#main-app-view'),
-        $messageText = $('#message-text'),
-        $nameForm = $('#name-form'),
-        $joinButton = $nameForm.find('a.form-button'),
-        $messageForm = $('#message-form'),
-        $membersLozenge = $mainAppView.find('#members-lozenge'),
-        $membersListPopup = $('#members-list-popup'),
-        $dialogCloseButton = $('#dialog-close');
-
-    var view = new View(),
-        app = new ChatApp(view),
-        started = false;
-
-    // Helper to access the app from the dev console
-    window.app = app;
+    var login = function(clientId) {
+        view.joinAndAwaitConnect();
+        app.initialize(clientId);
+    }
 
     if (window.isRunningOnMobile) {
         // Cordova handlers for app pause and app resume
         // * disconnect when moving to background
         // * connect back to Ably when moving back to the foreground
         document.addEventListener('deviceready', function() {
-            document.addEventListener('pause', function () {
+            document.addEventListener('pause', function() {
                 if (app.initialized()) {
                     app.disconnect();
                 }
             });
 
-            document.addEventListener('resume', function () {
+            document.addEventListener('resume', function() {
                 if (app.initialized()) {
                     app.reconnect();
                 }
@@ -254,12 +263,11 @@ $(document).ready(function () {
         });
     }
 
-
     // Connection state change handler
     // * Disconnected / suspended: disable user input and display meaningful message
     // * Closed: disable user input and display meaningful message (closed following a request)
     // * Connected: re-enable input and hide message
-    app.bind('connection.statechange', function(state) {
+    app.on('connection.statechange', function(state) {
         console.log("Connection state change", state);
 
         if (state === 'disconnected' || state === 'suspended') {
@@ -267,10 +275,12 @@ $(document).ready(function () {
         } else if (state === 'closed') {
             view.disableInterface('Connection is closed as a result of a user interaction');
         } else if (state === 'connecting') {
-            view.disableInterface('Connecting to Ably...');
+            if (document.appHasJoined) {
+                view.disableInterface('Connecting to Ably...');
+            }
         } else if (state === 'connected') {
-            if (!started) {
-                started = true;
+            if (!document.appHasJoined) {
+                document.appHasJoined = true;
                 view.joinSuccessful();
             } else {
                 view.enableInterface();
@@ -278,64 +288,35 @@ $(document).ready(function () {
         }
     });
 
-    app.bind('connection.failed', function(state) {
+    app.on('connection.failed', function(state) {
         view.showError("Connecting failed");
     });
 
     // Joins the channel using the name (clientId) entered by the user
-    $nameForm.on('submit', function (ev) {
-        ev.preventDefault();
-
-        if (view.nameVal() === '') {
+    view.on('login.submit', function(name) {
+        if (name === '') {
             return view.showNameValidationError();
         }
-
-        view.joinAndAwaitConnect();
-        app.initialize(view.nameVal());
-    });
-
-    $joinButton.on('click', function() {
-        $nameForm.submit();
+        login(name);
     });
 
     // Sends the message typed by the user and stops the 'user is typing' notification
-    $messageForm.on('submit', function (ev) {
-        ev.preventDefault();
-
-        if ($messageText.val().trim() === '') {
-            return;
-        }
-
-        app.publishMessage($messageText.val());
-        $messageText.val('');
-        $messageText.focus();
-
+    view.on('message.send', function(message) {
+        if (message.trim() === '') { return; }
+        app.publishMessage(message);
+        view.resetMessageInput();
         app.sendTypingNotification(false);
     });
 
     // Sends a 'user is typing' notification, except when completing a message via the Enter key.
-    $messageText.on('keydown', function (e) {
-        if (e.keyCode == 13) {
-            return;
-        }
-
+    view.on('message.keydown', function(keyCode) {
         app.sendTypingNotification(true);
     });
 
-    // Sends a 'user has stopped typing' notification, after 2 seconds have passed since the last keystroke.
-    $messageText.on('keyup', _.debounce(function () {
+    // Sends a 'user has stopped typing' notification, after 5 seconds have passed since the last keystroke.
+    view.on('message.keyup', _.debounce(function () {
         app.sendTypingNotification(false);
     }, 5000));
-
-    $membersLozenge.on('click', function () {
-        if (!$(this).hasClass('disabled')) {
-            $membersListPopup.show();
-        }
-    });
-
-    $dialogCloseButton.on('click', function () {
-        $membersListPopup.hide();
-    });
 
     window.onunload = window.onbeforeunload = function () {
         if (app.initialized()) {
@@ -344,6 +325,11 @@ $(document).ready(function () {
     };
 
     view.appLoaded();
+
+    var queryParams = Utils.parseQuery(document.location.search);
+    if (queryParams.autoLogin) {
+        login(queryParams.autoLogin);
+    }
 });
 ;(function (window) {
     "use strict";
@@ -382,7 +368,18 @@ $(document).ready(function () {
 
     // Formats a Date object into a "hours:minutes:seconds" time format.
     function formatDateAsLocalTime(date) {
-        return padZeroes(date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
+        var today = new Date(),
+            dayMs = 24 * 60 * 60 * 1000,
+            yesterday = new Date(today.getTime() - dayMs),
+            months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" "),
+            datePart = date.getDate() + " " + date.getMonth();
+
+        if (date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear()) {
+            datePart = "today";
+        } else if (date.getDate() == yesterday.getDate() && date.getMonth() == yesterday.getMonth() && date.getFullYear() == yesterday.getFullYear()) {
+            datePart = "yesterday";
+        }
+        return padZeroes(datePart + " at " + date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
     }
 
     // Creates a string showing which members are currently typing.
@@ -407,65 +404,145 @@ $(document).ready(function () {
         return typingMembers.slice(0, 3).join(', ') + ' and ' + others + ' other' + (others > 1 ? 's are' : ' is') + ' typing...';
     }
 
+    function parseQuery(qstr) {
+        var query = {};
+        var a = qstr.substr(1).split('&');
+        for (var i = 0; i < a.length; i++) {
+            var b = a[i].split('=');
+            query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+        }
+        return query;
+    }
+
     window.Utils = {
         formatDateAsLocalTime: formatDateAsLocalTime,
         formatTypingNotification: formatTypingNotification,
-        leftTrim: leftTrim
+        leftTrim: leftTrim,
+        parseQuery: parseQuery
     };
 }(window));
 ;(function (window) {
     "use strict";
 
-    // Constructs a View, containing various functions related to the UI:
-    // * Triggering loading overlay
-    // * Displaying presence messages
-    // * Displaying chat messages
-    // * Displaying members count and mentioning
-    function View() {
-        var view = this,
-            $nameForm = $('#name-form'),
-            $nameField = $nameForm.find('input.form-text'),
-            $joinButton = $nameForm.find('a.form-button'),
-            $messageList = $('#message-list'),
-            $loadingMessage = $('#loading-message'),
-            $flashNotice = $('#flash-notice'),
-            $flashNoticePusher = $('#flash-notice-page-shifter'),
-            $messageFormInputs = $('#message-form :input'),
-            $sendMessageButton = $('#submit-message'),
-            $messageText = $('#message-text'),
-            $membersLozenge = $('#members-lozenge'),
-            $membersCountLozenge = $('#members-count'),
-            $membersTypingNotification = $('#members-typing-indication'),
-            $membersList = $('#members-list'),
-            $membersListPopup = $('#members-list-popup'),
+    MicroEvent.mixin(View); /* add EventEmitter to View class i.e. bind and trigger */
 
-            $login = $('#js-login'),
-            $messages = $('#js-messages'),
-            $status = $('#js-status');
+    /*
+     * View class is responsible for updating the HTML UI and capturing all events
+     */
+    function View() {
+        var view = this;
+
+        var MAX_COLORS = 8,
+            NOTICE_TYPES = 'offline typing sending loading'.split(' '),
+            otherUserColours = {};
+
+        /* login elements */
+        var $loginView = $('#js-login'),
+            $loginForm = $loginView.find('#name-form'),
+            $loginNameField = $loginView.find('input.form-text'),
+            $loginButton = $loginView.find('a.form-button');
+
+        /* messages list */
+        var $messageThreadView = $('#js-messages'),
+            $messagesList = $messageThreadView.find('.thread');
+
+        /* panel that is sticky with input field for new messages and menu of users */
+        var $messagePanel = $('#js-message-panel'),
+            $msgPanelStatus = $messagePanel.find('.msg-status'),
+            $msgPanelStatusText = $msgPanelStatus.find('.msg-status-text'),
+            $msgPanelPeopleCounter = $messagePanel.find('.msg-people'),
+            $msgPanelPeopleCounterText = $msgPanelPeopleCounter.find('.icon-person'),
+            $msgPanelPeopleList = $messagePanel.find('.user-menu .user-list'),
+            $msgPanelMenuButton = $messagePanel.find('.msg-menu a'),
+            $msgPanelInput = $messagePanel.find('.form-message');
+
+        function initialize() {
+            $loginForm.on('submit', function(event) {
+                event.preventDefault();
+                view.trigger('login.submit', $loginNameField.val());
+            });
+
+            $loginButton.on('click', function() {
+                $loginForm.submit();
+            });
+
+            $msgPanelInput.on('keydown', function(event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    view.trigger('message.send', $msgPanelInput.val());
+                } else {
+                    view.trigger('message.keydown', event.keyCode);
+                }
+            });
+
+            $msgPanelInput.on('keyup', function(event) {
+                view.trigger('message.keyup', event.keyCode);
+            });
+
+            setupPeopleListToggler();
+        }
+
+        /* There are 8 colour slots, rotate between colours for each user and assign them an alphabetical letter */
+        function getPresentationForUser(user) {
+            var indexLetters = 'ABCDEFGHJIJKLMNOPQRSTUVWXYZ';
+
+            if (otherUserColours[user]) {
+                return otherUserColours[user];
+            } else {
+                var colourIndex = (Object.keys(otherUserColours).length + 1) % MAX_COLORS,
+                    letterIndex = (Object.keys(otherUserColours).length) % indexLetters.length,
+                    letter = indexLetters.slice(letterIndex, letterIndex+1);
+
+                otherUserColours[user] = {
+                    colour: colourIndex+1, /* 1-8 */
+                    letter: letter
+                }
+                return otherUserColours[user];
+            }
+        }
+
+        function togglePeopleListVisibility(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            if ($messagePanel.hasClass("show-user-menu")) {
+                $(document).off("click", togglePeopleListVisibility);
+            } else {
+                $(document).one("click", togglePeopleListVisibility);
+            }
+            $messagePanel.toggleClass("show-user-menu");
+        }
+
+        /* Toggle the people list menu */
+        function setupPeopleListToggler() {
+            $msgPanelMenuButton.on('click', togglePeopleListVisibility);
+            $msgPanelPeopleCounter.on('click', togglePeopleListVisibility);
+        }
 
         function publishedFromSelf(message) {
             return message.clientId == view.clientId;
         }
 
-        function messageElem(message) {
+        function messagePartial(message) {
             var dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(message.timestamp)),
-                $author = $('<span class="author">').text(message.clientId),
-                $time = $('<div class="time">').text(dateAsLocalTime),
-                $message = $('<div class="message">').text(message.data),
-                $back = $('<div class="back">'),
-                $li = $('<div class="message-bubble">');
+                $box = $('<span class="thread-box">'),
+                $li = $('<li class="thread-event user">').addClass("theme-" + getPresentationForUser(message.clientId).colour);
 
-            $back.append($author, $time, $message);
-            $li.append($back);
+            $box.append($('<span class="handle">').text(message.clientId));
+            $box.append($('<span class="time">').text(dateAsLocalTime));
+            $box.append($('<span class="text">').text(message.data));
+            $li.append($box);
 
             if (publishedFromSelf(message)) {
-                return $li.addClass('sent');
+                return $li.addClass('me');
             } else {
-                return $li.addClass('received');
+                return $li.addClass('not-me');
             }
         }
 
-        function presenceElem(presence) {
+        function presencePartial(presence) {
             var actionText,
                 $text,
                 dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(presence.timestamp));
@@ -479,13 +556,13 @@ $(document).ready(function () {
             }
 
             $text = $('<span class="text">');
+
             if (publishedFromSelf(presence)) {
-                $text.text('you ' + actionText + ' the channel');
+                $text.text('you ' + actionText + ' the channel ' + dateAsLocalTime);
             } else {
-                $text.text(presence.clientId + ' has ' + actionText + ' the channel');
+                $text.text(presence.clientId + ' ' + actionText + ' the channel ' + dateAsLocalTime);
             }
-            $text.append('<span class="time">' + dateAsLocalTime + '</span>');
-            return $('<div class="message-presence">').append($text);
+            return $('<li class="system-event ' + actionText + '">').append($text);
         }
 
         function addToMessageList($elem, historicalMessages) {
@@ -494,9 +571,9 @@ $(document).ready(function () {
             ensureNewMessagesAreVisible();
 
             if (historicalMessages) {
-                $messageList.prepend($elem);
+                $messagesList.prepend($elem);
             } else {
-                $messageList.append($elem);
+                $messagesList.append($elem);
             }
         }
 
@@ -512,10 +589,10 @@ $(document).ready(function () {
 
         function updateMembersTyping(members) {
             if (members.length == 0) {
-                $membersTypingNotification.hide();
+                view.hideNotice('typing');
             } else {
                 ensureNewMessagesAreVisible();
-                $membersTypingNotification.text(Utils.formatTypingNotification(members)).show();
+                view.showNotice('typing', Utils.formatTypingNotification(members));
             }
         }
 
@@ -523,86 +600,158 @@ $(document).ready(function () {
         function updateMembers(members) {
             members = members || [];
 
+            var uniqueMembers = {}, member, memberSelf;
+            for (var i = 0; i < members.length; i++) {
+                member = members[i];
+                if (!publishedFromSelf(member) && !uniqueMembers[member.clientId]) {
+                    uniqueMembers[member.clientId] = member;
+                } else if (publishedFromSelf(member) && !memberSelf) {
+                    memberSelf = member;
+                }
+            }
+
+            members = Object.keys(uniqueMembers).map(function(memberClientId) {
+                return uniqueMembers[memberClientId];
+            });
+
             // Typing members are users who have 'isTyping' set to true in their presence data
             var typingMembersNames = members.filter(function (member) {
-                return member && member.data && member.data.isTyping && (member.clientId != view.clientId);
+                return member && member.data && member.data.isTyping;
             }).map(function (member) {
                 return member.clientId;
             });
             updateMembersTyping(typingMembersNames);
 
-            $membersCountLozenge.text(members.length);
-
+            $msgPanelPeopleCounterText.text(members.length + (memberSelf ? 1 : 0));
 
             // Clear the member list and replace it with a list with their names
-            $membersList.html('').append(members.map(function (member) {
-                var memberName = member.clientId,
-                    $li = $('<li><a href="javascript:void(0)">').text(memberName);
+            $msgPanelPeopleList.html('');
 
-                $li.on('click', function () {
-                    $messageText.val(Utils.leftTrim($messageText.val() + ' @' + memberName + ' '));
-                    $membersListPopup.hide();
-                    $messageText.focus();
+            var addMember = function(member, isSelf) {
+                var memberName = member.clientId,
+                    $link = $('<a>').attr("href", "#" + memberName),
+                    $name = $('<span>').text(memberName),
+                    $li = $('<li class="user-item">'),
+                    colourIndex = getPresentationForUser(memberName).colour,
+                    letter = getPresentationForUser(memberName).letter;
+
+                if (isSelf) {
+                    $link.append($('<em>'));
+                    $name.append('<span class="me">(me)</span>');
+                } else {
+                    $link.append($('<em>').text(letter));
+                    $li.addClass("theme-" + colourIndex);
+                }
+                $link.append($name);
+                $li.append($link);
+
+                $li.one('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    $msgPanelInput.val(Utils.leftTrim($msgPanelInput.val() + ' @' + memberName + ' '));
+                    $msgPanelInput.focus();
+
+                    togglePeopleListVisibility();
                 });
 
-                return $li;
-            }));
+                $msgPanelPeopleList.append($li);
+            }
+
+            for (var i = 0; i < members.length; i++) {
+                addMember(members[i]);
+            }
+
+            if (memberSelf) { addMember(memberSelf, true); }
         }
 
-        view.enableInterface = function() {
-            view.hideNotice();
-            $messageFormInputs.prop('disabled', false);
-            $membersCountLozenge.show();
-            $membersLozenge.removeClass('disabled');
+        this.enableInterface = function() {
+            $('body').removeClass('system-offline');
+            view.hideNotice('offline');
+            $msgPanelInput.prop('disabled', false);
+            $msgPanelPeopleCounter.show();
+            $msgPanelMenuButton.show();
         }
 
         this.disableInterface = function(reason) {
-            view.showNotice(reason);
-            $messageFormInputs.prop('disabled', true);
-            $membersCountLozenge.hide();
-            $membersLozenge.addClass('disabled');
+            $('body').addClass('system-offline');
+            view.showNotice('offline', reason);
+            $msgPanelInput.prop('disabled', true);
+            $msgPanelPeopleCounter.hide();
+            $msgPanelMenuButton.hide();
         }
 
         this.joinAndAwaitConnect = function() {
-            $nameField.addClass('connecting');
-            $joinButton.addClass('connecting');
+            $loginNameField.addClass('connecting');
+            $loginButton.addClass('connecting');
         }
 
         this.joinSuccessful = function() {
-            $login.addClass('hidden');
-            $messages.removeClass('hidden');
-            $status.removeClass('hidden');
-        }
-
-        this.nameVal = function() {
-            return $nameField.val();
+            $loginView.addClass('hidden');
+            $messageThreadView.removeClass('hidden');
+            $messagePanel.removeClass('hidden');
         }
 
         this.showNameValidationError = function() {
-            $nameField.attr('placeholder', '@handle is required').addClass('validation-error');
+            $loginNameField.attr('placeholder', '@handle is required').addClass('validation-error');
         }
 
-        this.showNotice = function(message) {
-            ensureNewMessagesAreVisible(function() {
-                $flashNoticePusher.show();
-            });
+        /* Keep a simple backlog of notices so that newer notices are
+           shown, but when they are hidden, the older one remains */
+        var noticeBacklog = [];
+        function showNoticesFromBacklog() {
+            var notice = noticeBacklog[noticeBacklog.length - 1];
+            if (!notice) {
+                $msgPanelStatus.fadeOut(200, function() {
+                    NOTICE_TYPES.map(function(type) {
+                        $messagePanel.removeClass("system-" + type);
+                    });
+                    $msgPanelStatus.show();
+                });
+                return;
+            }
 
-            $flashNotice.text(message);
-            $flashNotice.show();
+            NOTICE_TYPES.map(function(type) {
+                if (type == notice.type) {
+                    $messagePanel.addClass("system-" + type);
+                } else {
+                    $messagePanel.removeClass("system-" + type);
+                }
+            });
+            $msgPanelStatusText.text(notice.message);
+        }
+
+        this.showNotice = function(type, message) {
+            if (NOTICE_TYPES.indexOf(type) < 0) {
+                throw "Invalid notice type: " + type;
+            }
+            noticeBacklog.push({ type: type, message: message });
+            showNoticesFromBacklog();
         };
 
-        this.hideNotice = function() {
-            $flashNotice.hide();
-            $flashNoticePusher.hide();
+        this.hideNotice = function(type) {
+            var filteredBacklog = [],
+                notice, haveRemovedNotice;
+
+            for (var i = noticeBacklog.length - 1; i >= 0; i--) {
+                var notice = noticeBacklog[i];
+                if (!haveRemovedNotice && (notice.type == type)) {
+                    haveRemovedNotice = true;
+                } else {
+                    filteredBacklog.unshift(notice);
+                }
+            }
+            noticeBacklog = filteredBacklog;
+            showNoticesFromBacklog();
         };
 
         this.showNewMessage = function(message) {
-            addToMessageList(messageElem(message));
+            addToMessageList(messagePartial(message));
         };
 
         // Receives an Ably presence message and shows it on the screen
         this.showPresenceEvent = function(presenceMessage, members) {
-            addToMessageList(presenceElem(presenceMessage));
+            addToMessageList(presencePartial(presenceMessage));
             updateMembers(members);
         };
 
@@ -613,13 +762,18 @@ $(document).ready(function () {
             for (var i = 0; i < messages.length; i++) {
                 message = messages[i];
                 if (message.action) {
-                    elem = presenceElem(message);
+                    elem = presencePartial(message);
                 } else {
-                    elem = messageElem(message);
+                    elem = messagePartial(message);
                 }
                 addToMessageList(elem, true);
             }
         };
+
+        this.resetMessageInput = function() {
+            $msgPanelInput.val('');
+            $msgPanelInput.focus();
+        }
 
         // Generic error handler - alert()s an error, if one exists
         this.showError = function (err) {
@@ -635,13 +789,15 @@ $(document).ready(function () {
         };
 
         // Clears the messages list
-        this.resetMessages = function () {
-            $messageList.empty();
+        this.clearMessages = function () {
+            $messagesList.empty();
         };
 
         this.appLoaded = function() {
-            $login.removeClass('hidden');
-        }
+            $loginView.removeClass('hidden');
+        };
+
+        initialize();
     }
 
     window.View = View;

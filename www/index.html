@@ -23,10 +23,11 @@
 
     <script src="js/compiled/vendor.js"></script>
 
+    <script src="js/utils.js"></script>
+
     <script src="js/app.js"></script>
     <script src="js/view.js"></script>
     <script src="js/controller.js"></script>
-    <script src="js/utils.js"></script>
 
     <script>
         // Load Cordova.js only if running on mobile
@@ -40,9 +41,6 @@
 </head>
 
 <body>
-
-<!-- <div id="flash-notice"></div>
-<div id="flash-notice-page-shifter"></div> -->
 
 <div class="container hidden" id="js-login">
     <span class="centerMiddle">
@@ -72,134 +70,47 @@
 
 <div class="container hidden" id="js-messages">
     <ul class="thread">
-        <li class="system-event">
+        <!--li class="system-event">
             <span class="text">userhandle connected at 21:23</span>
-        </li>
-        <li class="system-event">
-            <span class="text">userhandle connected at 21:23</span>
-        </li>
-        <li class="thread-event user sending them theme-1">
+        </li-->
+        <!-- li class="thread-event user sending them theme-1">
             <span class="thread-box">
                 <span class="handle">myhandle</span>
                 <span class="time">20:29 <i></i></span>
                 <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
             </span>
-        </li>
-        <li class="thread-event user me">
+        </li -->
+        <!-- li class="thread-event user me">
             <span class="thread-box">
                 <span class="handle">myhandle</span>
                 <span class="time">20:29 <i></i></span>
                 <span class="text">Lorem ipsum dolor sit amet, consec tetur adip isicing elit.</span>
             </span>
-        </li>
-        <li class="thread-event user them theme-1">
-            <span class="thread-box">
-                <span class="handle">myhandle</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque incidunt accusamus maxime consequatur, magnam, illo, odit aliquam deleniti delectus ea reprehenderit libero non pariatur commodi autem a hic soluta consectetur.
-                </span>
-            </span>
-        </li>
-        <li class="system-event disconnect">
-            <span class="text">userhandle disconnected at 21:23</span>
-        </li>
-        <li class="thread-event user them theme-1 sending">
-            <span class="thread-box">
-                <span class="handle">myhandle</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user me sending">
-            <span class="thread-box">
-                <span class="handle">myhandle</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-1">
-            <span class="thread-box">
-                <span class="handle">user-them theme-1</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-2">
-            <span class="thread-box">
-                <span class="handle">user-them theme-2</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-3">
-            <span class="thread-box">
-                <span class="handle">user-them theme-3</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-4">
-            <span class="thread-box">
-                <span class="handle">user-them theme-4</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-5">
-            <span class="thread-box">
-                <span class="handle">user-them theme-5</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-6">
-            <span class="thread-box">
-                <span class="handle">user-them theme-6</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-7">
-            <span class="thread-box">
-                <span class="handle">user-them theme-7</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
-        <li class="thread-event user sending them theme-8">
-            <span class="thread-box">
-                <span class="handle">user-them theme-8</span>
-                <span class="time">20:29 <i></i></span>
-                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
-            </span>
-        </li>
+        </li -->
     </ul>
 </div>
 
-<div class="msg-bar hidden" id="js-status">
+<div class="msg-bar hidden" id="js-message-panel">
     <div class="msg-container">
         <div class="msg-inner">
             <div class="msg-status">
                 <span class="msg-status-text">system status message</span>
             </div>
-            <div class="msg-people js-show-menu">
-                <span class="icon-person">3</span>
+            <div class="msg-people">
+                <a class="icon-person">3</a>
             </div>
             <div class="msg-input">
                 <div class="msg-text">
-                    <input type="text" placeholder="your message" class="form-message" id="jsMsgInput">
+                    <input type="text" placeholder="your message" class="form-message">
                 </div>
-                <div class="msg-menu js-show-menu">
-                    <span class="icon-menu"></span>
+                <div class="msg-menu">
+                    <a href="#show-user-menu" class="icon-menu"></a>
                 </div>
                 <div class="user-menu">
                     <div class="user-inner">
                         <span class="user-heading icon-talk"><strong>Handles</strong></span>
                         <ul class="user-list">
-                            <li class="user-item them theme-1"><a href="#aUserHandle"><em>A</em><span>aUserOne</span></a></li>
-                            <li class="user-item them theme-2"><a href="#bUserHandle"><em>B</em><span>bUserTwo</span></a></li>
-                            <li class="user-item them theme-3"><a href="#cUserHandle"><em>C</em><span>cUserThree</span></a></li>
+                            <!-- li class="user-item them theme-1"><a href="#aUserHandle"><em>A</em><span>aUserOne</span></a></li -->
                         </ul>
                     </div>
                 </div>
@@ -207,43 +118,6 @@
         </div>
     </div>
 </div>
-
-<!-- <div id="enter-name-view">
-    <form id="name-form">
-        <input type="text" placeholder="Name" id="name" class="name-input"/>
-        <input type="submit" id="submit-name" value="Join"/>
-    </form>
-</div> -->
-
-<!-- <div id="main-app-view">
-
-    <div id="message-list-container">
-        <div id="message-list"></div>
-        <div id="members-typing-indication"></div>
-    </div>
-
-    <div class="type-message-bar">
-        <a id="members-lozenge" href="javascript:void(0)">
-            <img src="images/avatars.png" width="32"/>
-            <span id="members-count"></span>
-        </a>
-
-        <form id="message-form" action="#">
-            <div class="chat-box">
-                <input type="text" id="message-text" class="message-input" placeholder="Message"/>
-                <input type="submit" id="submit-message" class="message-send" value="Send"/>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="members-list-popup">
-    <a class="dialog-close" id="dialog-close"></a>
-
-    <h1>Members present</h1>
-    <h5>Click a user to @ mention them</h5>
-    <ul id="members-list"></ul>
-</div> -->
 
 </body>
 </html>

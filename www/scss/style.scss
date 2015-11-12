@@ -147,11 +147,11 @@ body {
         }
 
         &.connecting {
-            animation-name: showhandle;
-            animation-duration: 250ms;
+            border: 2px solid black;
+            opacity: 0;
+            animation-name: hidehandle;
+            animation-duration: 100ms;
             animation-timing-function: cubic-bezier(0.16, 0.93, 1, 1);
-            position: relative;
-            visibility: hidden;
         }
     }
     &-button {
@@ -161,6 +161,9 @@ body {
         color: white;
         font-weight: bold;
         padding: 2% 3%;
+        z-index: 10;
+        position: relative;
+        top: 0px;
         &:before {
             content: 'Join';
             display: block;
@@ -173,9 +176,9 @@ body {
             background-color: #fff;
             border-color: #fff;
             border-radius: 30px;
-            color: $silver;
+            top: -60px;
             animation-name: makeready;
-            animation-duration: 250ms;
+            animation-duration: 1500ms;
             animation-timing-function: ease;
 
         }
@@ -187,6 +190,7 @@ body {
 	    font-size: 20px;
     }
 }
+
 .user {
     &-menu {
         position: absolute;
@@ -234,7 +238,10 @@ body {
             margin: 0 10px;
             font-style: normal;
             line-height: 1.7;
-            background-color: red;
+            background-color: #FAA000;
+        }
+        span.me {
+            color: #AAA;
         }
         span {
             font-size: 14px;
@@ -256,6 +263,7 @@ body {
         }
     }
 }
+
 .msg {
     &-bar {
         position: fixed;
@@ -285,6 +293,9 @@ body {
         border-radius: 4px;
         padding: 4px;
         border: 1px solid black;
+        .show-user-menu & {
+            border-radius: 4px 0 4px 4px;
+        }
     }
     &-status,
     &-people {
@@ -323,6 +334,9 @@ body {
         left: auto;
         margin: 0;
         margin: 0 -2px 0 0;
+        a {
+            color: black;
+        }
         .icon-menu {
             font-size: 32px;
             margin:1px 3px 0 0;
@@ -330,7 +344,6 @@ body {
             .show-user-menu & {
                 background-color: black;
                 color: white;
-                border-radius: 0 0 5px 5px;
             }
         }
     }
@@ -354,7 +367,7 @@ body {
                 width: auto;
                 font-size: 0.8em;
             }
-            &.disconnect .text {
+            &.left .text {
                 background-color: #cfcfcf;
                 color: #666666;
             }
@@ -376,15 +389,21 @@ body {
                 @include status-icons("\e606");
             }
         }
-        .thread {
-            animation-name: fadeout;
+        .msg-bar {
+            background-color: $silver;
+            animation-name: greyout;
             animation-duration: 1000ms;
             animation-timing-function: $cubic-curve;
-            opacity: 0.3;
+        }
+        .msg-bar .msg-input, .msg-bar .msg-input input {
+            background-color: #DDD;
+            animation-name: input-greyout;
+            animation-duration: 1000ms;
+            animation-timing-function: $cubic-curve;
         }
 
     }
-    &-sending {
+    &-sending, &-loading {
         .msg-status {
             opacity: 1;
             background-color: #000000;
@@ -436,7 +455,7 @@ body {
             left:auto;
             right:-5px;
         }
-        &.them {
+        &.not-me {
             animation-duration: $animate-ms;
             animation-name: slidethem;
             animation-timing-function: $cubic-curve;
@@ -509,24 +528,23 @@ body {
 
 
 @keyframes makeready {
-    0% {
-        border-radius: 30px;
-        background-color: $silver;
-    }
     100% {
+        top: -60px;
+        border-radius: 30px;
+        background-color: #AAA;
+    }
+    0% {
+        top: 0px;
         border-radius: 5px;
         background-color: black;
     }
 }
-@keyframes showhandle {
+@keyframes hidehandle {
     0% {
-        opacity: 0;
-        visibility: visible;
-        top: 20px;
+        opacity: 1;
     }
     100% {
-        opacity: 1;
-        top: 0px;
+        opacity: 0;
     }
 }
 @keyframes flasherror {
@@ -568,22 +586,22 @@ body {
         opacity: 1;
     }
 }
-@keyframes fadeout {
+@keyframes greyout {
     0% {
-        opacity: 1;
+        background-color: $orange;
     }
 
     100% {
-        opacity: 0.3;
+        background-color: $silver;
     }
 }
 
+@keyframes input-greyout {
+    0% {
+        background-color: white;
+    }
 
-
-
-
-
-
-
-
-// kilroy was here :D
+    100% {
+        background-color: #DDD;
+    }
+}

@@ -9,11 +9,7 @@ module.exports = function (grunt) {
       vendor: {
         src: ['www/js/vendor/*.js'],
         dest: 'www/js/compiled/vendor.js',
-      },
-      app: {
-        src: ['www/js/*.js'],
-        dest: 'www/js/compiled/app.js',
-      },
+      }
     },
 
     // Convert SCSS to CSS

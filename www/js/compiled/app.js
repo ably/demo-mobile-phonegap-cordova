@@ -731,13 +731,11 @@ $(document).ready(function () {
 
         this.hideNotice = function(type) {
             var filteredBacklog = [],
-                notice, haveRemovedNotice;
+                notice;
 
             for (var i = noticeBacklog.length - 1; i >= 0; i--) {
                 var notice = noticeBacklog[i];
-                if (!haveRemovedNotice && (notice.type == type)) {
-                    haveRemovedNotice = true;
-                } else {
+                if (notice.type != type) {
                     filteredBacklog.unshift(notice);
                 }
             }

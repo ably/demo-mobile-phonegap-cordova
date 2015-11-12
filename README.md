@@ -18,17 +18,29 @@ The cordova CLI tool should install the whitelist plugin for the specific platfo
 * Use the app.
 
 ## Debugging on a mobile device
+
 You can use the [remote debugging feature](https://developer.chrome.com/devtools/docs/remote-debugging) of Chrome.
 
 ## View demo in your desktop / mobile browser
 
 [bit.do/ably-demo](http://bit.do/ably-demo)
 
-This [static site demo is hosted on Heroku](http://ably-phonegap-cordova-demo.herokuapp.com/), there is no server-side code to run this demo. If you want to run this app with a local static website server, you can use a generic Rack server by running `bundle && rackup`.
+This [static site demo is hosted on Heroku](http://ably-phonegap-cordova-demo.herokuapp.com/), there is no server-side code to run this demo. If you want to run this app with a local static website server, you can use Grunt `grunt server`.  Make sure you have run `npm install` beforehand.
 
 ## View demo locally in your browser
+
 Use the same steps as running on a mobile device, but use `browser` as a platform:
+
 * Make sure you have Cordova CLI installed.
 * Add cordova-plugin-whitelist.
 * Use `cordova platforms add browser` to add a `browser` platform.
 * Run in the browser: `cordova run browser`.
+
+# Local development
+
+In order to make changes to the app, you will need grunt to compile the `SCSS` files into `CSS`.
+A grunt task has been set up to spin up a local server and watch for any changes you make, and then build the `CSS` files automatically.
+You can run the grunt task as follows:
+
+* `npm install`
+* `grunt watch:server`

@@ -3,3 +3,5 @@
 platforms/
 plugins/
 !plugins/fetch.json
+node_modules
+.sass-cache

@@ -44,12 +44,12 @@ $(document).ready(function () {
         console.log("Connection state change", state);
 
         if (state === 'disconnected' || state === 'suspended') {
-            view.disableInterface("Reconnecting....");
+            view.disableInterface("You are disconnected, we'll try and reconnect shortly...");
         } else if (state === 'closed') {
-            view.disableInterface('Connection is closed as a result of a user interaction');
+            view.disableInterface('The connection has been closed as a result of a user action');
         } else if (state === 'connecting') {
             if (document.appHasJoined) {
-                view.disableInterface('Connecting to Ably...');
+                view.disableInterface('You are disconnected, tring to reconnect to Ably now...');
             }
         } else if (state === 'connected') {
             if (!document.appHasJoined) {

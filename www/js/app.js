@@ -8,7 +8,8 @@
         // Chat and presence messages to retrieve
         HISTORY_MESSAGES_LIMIT: 50,
 
-        TOKEN_PATH: 'https://www.ably.io/ably-auth/token-request/demos'
+        API_KEY: 'tL6z7Q.z3d7KA:4uF0qpGRQMI1NkPJ',
+        ABLY_ENV: 'sandbox'
     };
 
     MicroEvent.mixin(ChatApp);  /* add EventEmitter to View class i.e. bind and trigger */
@@ -49,8 +50,8 @@
         function getMessagesHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards' //, TODO: Reinstate untilAttach when working
-                // untilAttach: true
+                direction: 'backwards', //, TODO: Reinstate untilAttach when working
+                untilAttach: true
             };
 
             app.ablyChannel.history(params, function (err, result) {
@@ -67,8 +68,8 @@
         function getPresenceHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards' //, TODO: Reinstate untilAttach when working
-                // untilAttach: true
+                direction: 'backwards', //, TODO: Reinstate untilAttach when working
+                untilAttach: true
             };
 
             app.ablyChannel.presence.history(params, function (err, messages) {
@@ -110,9 +111,11 @@
             view.clientId = clientId;
 
             app.ably = new Ably.Realtime({
-                authUrl: getTokenRequestUrl(clientId),
+                key: Constants.API_KEY,
+                environment: Constants.ABLY_ENV,
                 clientId: clientId,
-                log: { level: 2 }
+                log: { level: 2 },
+                transports: ['web_socket']
             });
 
             app.ably.connection.on(function() {

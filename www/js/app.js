@@ -91,6 +91,10 @@
             }, duration);
         }
 
+        function getTokenRequestUrl(clientId) {
+            return Constants.TOKEN_PATH + '?clientId=' + escape(clientId);
+        }
+
         // Initializes an Ably realtime instance using the clientId
         // * Connect using Token Request
         // * Attach channel
@@ -100,7 +104,7 @@
             view.clientId = clientId;
 
             app.ably = new Ably.Realtime({
-                authUrl: Constants.TOKEN_PATH,
+                authUrl: getTokenRequestUrl(clientId),
                 clientId: clientId,
                 log: { level: 2 }
             });

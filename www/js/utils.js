@@ -35,7 +35,18 @@
 
     // Formats a Date object into a "hours:minutes:seconds" time format.
     function formatDateAsLocalTime(date) {
-        return padZeroes(date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
+        var today = new Date(),
+            dayMs = 24 * 60 * 60 * 1000,
+            yesterday = new Date(today.getTime() - dayMs),
+            months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" "),
+            datePart = date.getDate() + " " + date.getMonth();
+
+        if (date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear()) {
+            datePart = "today";
+        } else if (date.getDate() == yesterday.getDate() && date.getMonth() == yesterday.getMonth() && date.getFullYear() == yesterday.getFullYear()) {
+            datePart = "yesterday";
+        }
+        return padZeroes(datePart + " at " + date.getHours()) + ":" + padZeroes(date.getMinutes()) + ":" + padZeroes(date.getSeconds());
     }
 
     // Creates a string showing which members are currently typing.
@@ -60,9 +71,20 @@
         return typingMembers.slice(0, 3).join(', ') + ' and ' + others + ' other' + (others > 1 ? 's are' : ' is') + ' typing...';
     }
 
+    function parseQuery(qstr) {
+        var query = {};
+        var a = qstr.substr(1).split('&');
+        for (var i = 0; i < a.length; i++) {
+            var b = a[i].split('=');
+            query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+        }
+        return query;
+    }
+
     window.Utils = {
         formatDateAsLocalTime: formatDateAsLocalTime,
         formatTypingNotification: formatTypingNotification,
-        leftTrim: leftTrim
+        leftTrim: leftTrim,
+        parseQuery: parseQuery
     };
 }(window));

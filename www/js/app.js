@@ -11,7 +11,13 @@
         TOKEN_PATH: 'https://www.ably.io/ably-auth/token-request/demos'
     };
 
-    MicroEvent.mixin(ChatApp);
+    MicroEvent.mixin(ChatApp);  /* add EventEmitter to View class i.e. bind and trigger */
+
+    /*
+     *  ChatApp is the application class that provides high level functions for all
+     *  application operations such as retrieve messages, publish messages, update user status,
+     *  connect to Ably, emit events when connection state changes etc.
+     */
     function ChatApp(view) {
         var app = this;
 
@@ -43,8 +49,8 @@
         function getMessagesHistory(callback) {
             var params = {
                 limit: Constants.HISTORY_MESSAGES_LIMIT,
-                direction: 'backwards'
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                direction: 'backwards',
+                untilAttach: true
             };
 
             app.ablyChannel.history(params, function (err, result) {
@@ -60,9 +66,9 @@
         // Retrieve presence messages history
         function getPresenceHistory(callback) {
             var params = {
+                limit: Constants.HISTORY_MESSAGES_LIMIT,
                 direction: 'backwards',
-                limit: Constants.HISTORY_MESSAGES_LIMIT
-                // untilAttach: true // TODO: Reinstitute when untilAttach is working, see https://github.com/ably/ably-js/issues/93
+                untilAttach: true
             };
 
             app.ablyChannel.presence.history(params, function (err, messages) {
@@ -128,7 +134,7 @@
 
         // Publishes the given message data to Ably with the clientId embedded
         this.publishMessage = function (data) {
-            view.showNotice('Sending message');
+            view.showNotice('sending', 'Sending message');
 
             app.ablyChannel.publish({ data: data, clientId: app.clientId }, function (err) {
                 if (err) {
@@ -145,7 +151,7 @@
             var channel = app.ablyChannel,
                 presence = channel.presence;
 
-            view.resetMessages();
+            view.clearMessages();
             channel.attach(); // if joinChannel called a second time, an explicit attach may be required
 
             channel.subscribe(view.showNewMessage);
@@ -156,7 +162,7 @@
                     view.showError(err);
                     return;
                 }
-                view.showNotice('Hang on a sec, loading channel history...');
+                view.showNotice('sending', 'Hang on a sec, loading channel history...');
                 app.loadHistory();
             });
 

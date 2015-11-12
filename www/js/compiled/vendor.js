@@ -253,14 +253,19 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
  *   - make it safer to use
 */
 
+/**
+ * Modified by Matthew O'Riordan 12 Nov 2015
+ * Changed bind and unbind to on and off to be more consistent with jQuery and other EventEmitters
+ **/
+
 var MicroEvent = function(){};
 MicroEvent.prototype  = {
-  bind  : function(event, fct){
+  on : function(event, fct){
     this._events = this._events || {};
     this._events[event] = this._events[event] || [];
     this._events[event].push(fct);
   },
-  unbind  : function(event, fct){
+  off : function(event, fct){
     this._events = this._events || {};
     if( event in this._events === false  )  return;
     this._events[event].splice(this._events[event].indexOf(fct), 1);
@@ -282,7 +287,7 @@ MicroEvent.prototype  = {
  * @param {Object} the object which will support MicroEvent
 */
 MicroEvent.mixin = function(destObject){
-  var props = ['bind', 'unbind', 'trigger'];
+  var props = ['on', 'off', 'trigger'];
   for(var i = 0; i < props.length; i ++){
     if( typeof destObject === 'function' ){
       destObject.prototype[props[i]]  = MicroEvent.prototype[props[i]];

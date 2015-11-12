@@ -23,10 +23,11 @@
 
     <script src="js/compiled/vendor.js"></script>
 
+    <script src="js/utils.js"></script>
+
     <script src="js/app.js"></script>
     <script src="js/view.js"></script>
     <script src="js/controller.js"></script>
-    <script src="js/utils.js"></script>
 
     <script>
         // Load Cordova.js only if running on mobile
@@ -177,21 +178,21 @@
     </ul>
 </div>
 
-<div class="msg-bar hidden" id="js-status">
+<div class="msg-bar hidden" id="js-message-panel">
     <div class="msg-container">
         <div class="msg-inner">
             <div class="msg-status">
                 <span class="msg-status-text">system status message</span>
             </div>
-            <div class="msg-people js-show-menu">
-                <span class="icon-person">3</span>
+            <div class="msg-people">
+                <a class="icon-person">3</a>
             </div>
             <div class="msg-input">
                 <div class="msg-text">
-                    <input type="text" placeholder="your message" class="form-message" id="jsMsgInput">
+                    <input type="text" placeholder="your message" class="form-message">
                 </div>
-                <div class="msg-menu js-show-menu">
-                    <span class="icon-menu"></span>
+                <div class="msg-menu">
+                    <a href="#show-user-menu" class="icon-menu"></a>
                 </div>
                 <div class="user-menu">
                     <div class="user-inner">

@@ -187,6 +187,7 @@ body {
 	    font-size: 20px;
     }
 }
+
 .user {
     &-menu {
         position: absolute;
@@ -234,7 +235,10 @@ body {
             margin: 0 10px;
             font-style: normal;
             line-height: 1.7;
-            background-color: red;
+            background-color: #FAA000;
+        }
+        span.me {
+            color: #AAA;
         }
         span {
             font-size: 14px;
@@ -256,6 +260,7 @@ body {
         }
     }
 }
+
 .msg {
     &-bar {
         position: fixed;
@@ -285,6 +290,9 @@ body {
         border-radius: 4px;
         padding: 4px;
         border: 1px solid black;
+        .show-user-menu & {
+            border-radius: 4px 0 4px 4px;
+        }
     }
     &-status,
     &-people {
@@ -306,6 +314,9 @@ body {
         right: auto;
         padding-left: 6px;
         opacity: 0;
+        animation-name: fadeToNothing;
+        animation-duration: 250ms;
+        animation-timing-function: $cubic-curve;
         &-text {
             font-size: 14px;
         }
@@ -323,6 +334,9 @@ body {
         left: auto;
         margin: 0;
         margin: 0 -2px 0 0;
+        a {
+            color: black;
+        }
         .icon-menu {
             font-size: 32px;
             margin:1px 3px 0 0;
@@ -330,7 +344,6 @@ body {
             .show-user-menu & {
                 background-color: black;
                 color: white;
-                border-radius: 0 0 5px 5px;
             }
         }
     }
@@ -354,7 +367,7 @@ body {
                 width: auto;
                 font-size: 0.8em;
             }
-            &.disconnect .text {
+            &.left .text {
                 background-color: #cfcfcf;
                 color: #666666;
             }
@@ -436,7 +449,7 @@ body {
             left:auto;
             right:-5px;
         }
-        &.them {
+        &.not-me {
             animation-duration: $animate-ms;
             animation-name: slidethem;
             animation-timing-function: $cubic-curve;
@@ -577,13 +590,12 @@ body {
         opacity: 0.3;
     }
 }
+@keyframes fadeToNothing {
+    0% {
+        opacity: 1;
+    }
 
-
-
-
-
-
-
-
-
-// kilroy was here :D
+    100% {
+        opacity: 0;
+    }
+}

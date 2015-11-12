@@ -227,7 +227,9 @@ body {
     margin: 0 10px;
     font-style: normal;
     line-height: 1.7;
-    background-color: red; }
+    background-color: #FAA000; }
+  .user-item span.me {
+    color: #AAA; }
   .user-item span {
     font-size: 14px;
     padding-left: 5px; }
@@ -268,6 +270,8 @@ body {
   border-radius: 4px;
   padding: 4px;
   border: 1px solid black; }
+  .show-user-menu .msg-input {
+    border-radius: 4px 0 4px 4px; }
 .msg-status, .msg-people {
   background: black;
   color: white;
@@ -285,7 +289,10 @@ body {
   left: 0;
   right: auto;
   padding-left: 6px;
-  opacity: 0; }
+  opacity: 0;
+  animation-name: fadeToNothing;
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18); }
   .msg-status-text {
     font-size: 14px; }
 .msg-people {
@@ -300,14 +307,15 @@ body {
   left: auto;
   margin: 0;
   margin: 0 -2px 0 0; }
+  .msg-menu a {
+    color: black; }
   .msg-menu .icon-menu {
     font-size: 32px;
     margin: 1px 3px 0 0;
     display: block; }
     .show-user-menu .msg-menu .icon-menu {
       background-color: black;
-      color: white;
-      border-radius: 0 0 5px 5px; }
+      color: white; }
 
 .system-event {
   border-radius: 50px;
@@ -324,7 +332,7 @@ body {
     display: inline-block;
     width: auto;
     font-size: 0.8em; }
-  .thread .system-event.disconnect .text {
+  .thread .system-event.left .text {
     background-color: #cfcfcf;
     color: #666666; }
 .system-typing .msg-status {
@@ -401,7 +409,7 @@ body {
       background: #FAA000;
       left: auto;
       right: -5px; }
-    .thread-event.them {
+    .thread-event.not-me {
       animation-duration: 250ms;
       animation-name: slidethem;
       animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18);
@@ -501,5 +509,10 @@ body {
     opacity: 1; }
   100% {
     opacity: 0.3; } }
+@keyframes fadeToNothing {
+  0% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
 
 /*# sourceMappingURL=style.css.map */

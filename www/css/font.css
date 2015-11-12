@@ -1,0 +1,70 @@
+@font-face {
+	font-family: 'icomoon';
+	src:url('../fonts/icomoon.eot?-5mb0ks');
+	src:url('../fonts/icomoon.eot?#iefix-5mb0ks') format('embedded-opentype'),
+		url('../fonts/icomoon.ttf?-5mb0ks') format('truetype'),
+		url('../fonts/icomoon.woff?-5mb0ks') format('woff'),
+		url('../fonts/icomoon.svg?-5mb0ks#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+.thread-event i,
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.user.sending .time i:after,
+.icon-arrow:before {
+    content: "\e600";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+.icon-at:before {
+    content: "\e601";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+
+.icon-menu:before {
+	content: "\e602";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+.icon-person:after {
+	content: "\e603";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+.icon-talk:before {
+	content: "\e604";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+.user .time i:after,
+.icon-tick:before {
+	content: "\e605";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}
+.icon-warn:before {
+	content: "\e606";
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 4px 3px;
+}

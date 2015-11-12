@@ -1,16 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="no-js" lang="">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy"
-          content="script-src * 'unsafe-inline'">
-    <title>Ably.io sample chat application</title>
-    <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <script src="js/libs/ably.min.js"></script>
-    <script src="js/libs/jquery-2.1.4.min.js"></script>
-    <script src="js/libs/underscore-min.js"></script>
-    <script src="js/libs/fastclick.js"></script>
+    <title>Ably.io sample chat application</title>
+
+    <meta name="description" content="Phonegap and Cordova demo app using Ably Realtime Messaging">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline'">
+
+    <link rel="stylesheet" href="css/vendor/normalize.css">
+    <link rel="stylesheet" href="css/vendor/boilerplate.css">
+    <link rel="stylesheet" href="css/font.css">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+
+    <script src="js/compiled/vendor.js"></script>
 
     <script src="js/app.js"></script>
     <script src="js/view.js"></script>
@@ -27,19 +38,184 @@
         }
     </script>
 </head>
+
 <body>
 
-<div id="flash-notice"></div>
-<div id="flash-notice-page-shifter"></div>
+<!-- <div id="flash-notice"></div>
+<div id="flash-notice-page-shifter"></div> -->
 
-<div id="enter-name-view">
+<div class="container hidden" id="js-login">
+    <span class="centerMiddle">
+        <span class="login">
+            <div class="logo">
+                <svg width="755px" height="303px" viewBox="0 0 755 303" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <path d="M107.291339,243.392157 C81.0019803,243.392157 59.6062992,221.992941 59.6062992,195.705882 C59.6062992,169.409882 81.0019803,148.016627 107.291339,148.016627 C133.583677,148.016627 154.976378,169.409882 154.976378,195.705882 C154.976378,221.992941 133.583677,243.392157 107.291339,243.392157 L107.291339,243.392157 Z M107.291339,88.4087843 C48.0367165,88.4087843 0,136.446745 0,195.705882 C0,254.956078 48.0367165,303 107.291339,303 C166.545961,303 214.582677,254.956078 214.582677,195.705882 C214.582677,136.446745 166.545961,88.4087843 107.291339,88.4087843 L107.291339,88.4087843 Z" fill="#ED7609"></path>
+                        <path d="M65.7517087,80.2782745 C64.7145591,80.624 63.0932677,81.094902 61.4481339,81.094902 C56.5812795,81.0919216 52.3969173,78.177098 50.5431614,73.9956078 L50.5401811,73.9956078 L31.4512638,33.0569412 L31.6598858,33.5099608 C30.8581811,31.9035294 30.4051732,30.0944314 30.4051732,28.1780392 C30.4051732,23.6567843 33.0278504,19.5825882 37.0035906,17.5112157 C58.0654764,6.63576471 81.9556811,0.487215686 107.291339,0.487215686 C192.060437,0.487215686 260.777559,69.2061176 260.777559,153.974431 C260.777559,199.097569 241.307161,239.675608 210.305925,267.762824 L210.294004,267.780706 C209.936366,268.072784 209.650256,268.218824 209.238972,268.218824 C208.416406,268.218824 207.748815,267.548235 207.748815,266.728627 C207.748815,266.326275 207.841205,265.977569 208.031945,265.652706 C221.842724,245.812235 229.949181,221.709804 229.949181,195.705882 C229.949181,127.961569 175.030917,73.0418824 107.291339,73.0418824 C92.7056772,73.038902 78.7250197,75.5990588 65.7517087,80.2782745" fill="#F9A01B"></path>
+                        <path d="M388.084693,170.441098 C388.084693,176.100863 392.331642,179.540235 401.424583,179.540235 C404.458543,179.540235 407.087181,179.134902 409.110815,178.729569 L409.110815,165.592 C405.874193,163.165961 401.630224,162.557961 398.396583,162.557961 C391.321315,162.557961 388.084693,165.389333 388.084693,169.633412 L388.084693,170.441098 L388.084693,170.441098 Z M409.110815,139.513569 L409.110815,137.290196 C409.110815,130.819765 406.681858,125.970667 387.68235,125.970667 C378.181106,125.970667 370.497854,127.183686 367.061551,127.788706 C356.552961,129.407059 354.329646,126.575686 352.508673,116.469176 L352.106331,114.245804 C351.701008,111.617098 351.295685,109.393725 351.295685,107.575686 C351.295685,101.510588 354.329646,99.4898824 363.422587,97.6688627 C372.72415,95.8508235 390.108327,95.2458039 399.809252,95.2458039 C437.408906,95.2458039 449.130484,104.33898 449.535807,135.87451 L449.535807,184.794667 C449.535807,195.91451 447.515154,199.145255 435.587933,202.176314 C431.746307,203.189647 416.791087,206.423373 398.596264,206.423373 C371.508181,206.423373 345.636067,199.145255 345.636067,172.664471 L345.636067,167.407059 C345.636067,146.791686 360.188945,135.671843 384.851051,135.671843 C393.54463,135.671843 400.619898,137.087529 409.110815,139.513569 L409.110815,139.513569 Z" fill="#1E1E1E"></path>
+                        <path d="M534.385374,147.396706 C534.385374,135.066824 529.128098,128.194039 517.805882,128.194039 C513.967236,128.194039 509.115283,129.001725 505.273657,131.225098 L505.273657,174.48549 C508.709961,175.296157 511.54126,175.492863 513.362232,175.492863 C524.88115,175.492863 534.385374,167.612706 534.385374,150.228078 L534.385374,147.396706 L534.385374,147.396706 Z M576.834,145.173333 L576.834,148.407059 C576.834,193.890824 546.309614,206.423373 513.362232,206.423373 C499.411378,206.423373 484.050835,204.2 476.772906,202.176314 C469.295295,199.952941 464.848665,196.114196 464.848665,186.815373 L464.848665,65.9336471 C464.848665,57.4425098 468.48465,53.803451 476.975567,53.803451 L493.146756,53.803451 C501.634693,53.803451 505.273657,57.4425098 505.273657,65.9336471 L505.273657,103.128941 C516.795555,96.8611765 525.894457,95.2458039 533.980051,95.2458039 C560.662811,95.2458039 576.834,113.235451 576.834,145.173333 L576.834,145.173333 Z" fill="#1E1E1E"></path>
+                        <path d="M643.184752,189.643765 C643.587094,199.550588 641.164098,201.571294 632.670201,203.189647 C629.436559,203.794667 624.584606,204.402667 619.732654,204.402667 C600.935807,204.402667 590.021894,195.91451 590.021894,166.602353 L590.021894,67.9543529 C590.021894,58.0505098 594.262882,53.803451 604.172429,53.803451 L616.299331,53.803451 C626.202917,53.803451 630.446886,58.0505098 630.446886,67.9543529 L630.446886,166.402667 C630.446886,172.059451 631.05487,173.475137 634.088831,173.475137 L635.906823,173.475137 C641.36378,173.475137 642.779429,178.526902 642.982091,184.794667 L643.184752,189.643765" fill="#1E1E1E"></path>
+                        <path d="M702.814894,170.277176 C710.498146,154.108549 716.360425,135.105569 716.360425,113.879216 L716.360425,111.453176 C716.360425,101.549333 720.604394,97.3052549 730.510961,97.3052549 L740.617209,97.3052549 C750.520795,97.3052549 754.767744,101.549333 754.767744,111.453176 L754.767744,114.081882 C754.767744,168.259451 729.297972,198.57898 691.90098,244.870431 C689.677665,247.90149 687.049028,249.72549 683.815386,249.72549 C680.581744,249.72549 678.155768,248.309804 674.922126,245.678118 L667.846858,240.021333 C662.994906,236.179608 660.974252,232.743216 660.974252,229.712157 C660.974252,227.488784 661.984579,225.468078 664.005232,223.441412 C668.857185,218.389647 675.729791,211.111529 681.389409,204.039059 C672.093807,191.50651 651.473008,146.627765 644.803063,110.648471 C642.982091,100.944314 644.600402,97.3052549 657.537949,97.3052549 L673.303815,97.3052549 C684.018047,97.3052549 685.430717,105.188392 686.444024,111.25349 C690.687992,135.713569 700.591579,165.428078 700.591579,165.225412 L702.814894,170.277176" fill="#1E1E1E"></path>
+                    </g>
+                </svg>
+                <h2 class="logo-subtitle">Realtime chat demo</h2>
+            </div>
+            <div class="handle">
+                <form id="name-form">
+                    <input type="text" placeholder="@handle" class="form-text">
+                    <a href="#" class="form-button"><!-- see SCSS to change text --></a>
+                </form>
+            </div>
+        </span>
+    </span>
+</div>
+
+<div class="container hidden" id="js-messages">
+    <ul class="thread">
+        <li class="system-event">
+            <span class="text">userhandle connected at 21:23</span>
+        </li>
+        <li class="system-event">
+            <span class="text">userhandle connected at 21:23</span>
+        </li>
+        <li class="thread-event user sending them theme-1">
+            <span class="thread-box">
+                <span class="handle">myhandle</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user me">
+            <span class="thread-box">
+                <span class="handle">myhandle</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, consec tetur adip isicing elit.</span>
+            </span>
+        </li>
+        <li class="thread-event user them theme-1">
+            <span class="thread-box">
+                <span class="handle">myhandle</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque incidunt accusamus maxime consequatur, magnam, illo, odit aliquam deleniti delectus ea reprehenderit libero non pariatur commodi autem a hic soluta consectetur.
+                </span>
+            </span>
+        </li>
+        <li class="system-event disconnect">
+            <span class="text">userhandle disconnected at 21:23</span>
+        </li>
+        <li class="thread-event user them theme-1 sending">
+            <span class="thread-box">
+                <span class="handle">myhandle</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user me sending">
+            <span class="thread-box">
+                <span class="handle">myhandle</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-1">
+            <span class="thread-box">
+                <span class="handle">user-them theme-1</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-2">
+            <span class="thread-box">
+                <span class="handle">user-them theme-2</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-3">
+            <span class="thread-box">
+                <span class="handle">user-them theme-3</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-4">
+            <span class="thread-box">
+                <span class="handle">user-them theme-4</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-5">
+            <span class="thread-box">
+                <span class="handle">user-them theme-5</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-6">
+            <span class="thread-box">
+                <span class="handle">user-them theme-6</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-7">
+            <span class="thread-box">
+                <span class="handle">user-them theme-7</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+        <li class="thread-event user sending them theme-8">
+            <span class="thread-box">
+                <span class="handle">user-them theme-8</span>
+                <span class="time">20:29 <i></i></span>
+                <span class="text">Lorem ipsum dolor sit amet, con secte turelit.</span>
+            </span>
+        </li>
+    </ul>
+</div>
+
+<div class="msg-bar hidden" id="js-status">
+    <div class="msg-container">
+        <div class="msg-inner">
+            <div class="msg-status">
+                <span class="msg-status-text">system status message</span>
+            </div>
+            <div class="msg-people js-show-menu">
+                <span class="icon-person">3</span>
+            </div>
+            <div class="msg-input">
+                <div class="msg-text">
+                    <input type="text" placeholder="your message" class="form-message" id="jsMsgInput">
+                </div>
+                <div class="msg-menu js-show-menu">
+                    <span class="icon-menu"></span>
+                </div>
+                <div class="user-menu">
+                    <div class="user-inner">
+                        <span class="user-heading icon-talk"><strong>Handles</strong></span>
+                        <ul class="user-list">
+                            <li class="user-item them theme-1"><a href="#aUserHandle"><em>A</em><span>aUserOne</span></a></li>
+                            <li class="user-item them theme-2"><a href="#bUserHandle"><em>B</em><span>bUserTwo</span></a></li>
+                            <li class="user-item them theme-3"><a href="#cUserHandle"><em>C</em><span>cUserThree</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div id="enter-name-view">
     <form id="name-form">
         <input type="text" placeholder="Name" id="name" class="name-input"/>
         <input type="submit" id="submit-name" value="Join"/>
     </form>
-</div>
+</div> -->
 
-<div id="main-app-view">
+<!-- <div id="main-app-view">
 
     <div id="message-list-container">
         <div id="message-list"></div>
@@ -67,7 +243,7 @@
     <h1>Members present</h1>
     <h5>Click a user to @ mention them</h5>
     <ul id="members-list"></ul>
-</div>
+</div> -->
 
 </body>
 </html>

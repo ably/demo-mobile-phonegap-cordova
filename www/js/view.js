@@ -8,6 +8,9 @@
     // * Displaying members count and mentioning
     function View() {
         var view = this,
+            $nameForm = $('#name-form'),
+            $nameField = $nameForm.find('input.form-text'),
+            $joinButton = $nameForm.find('a.form-button'),
             $messageList = $('#message-list'),
             $loadingMessage = $('#loading-message'),
             $flashNotice = $('#flash-notice'),
@@ -19,7 +22,11 @@
             $membersCountLozenge = $('#members-count'),
             $membersTypingNotification = $('#members-typing-indication'),
             $membersList = $('#members-list'),
-            $membersListPopup = $('#members-list-popup');
+            $membersListPopup = $('#members-list-popup'),
+
+            $login = $('#js-login'),
+            $messages = $('#js-messages'),
+            $status = $('#js-status');
 
         function publishedFromSelf(message) {
             return message.clientId == view.clientId;
@@ -127,18 +134,37 @@
             }));
         }
 
-        function enableInterface() {
+        view.enableInterface = function() {
             view.hideNotice();
             $messageFormInputs.prop('disabled', false);
             $membersCountLozenge.show();
             $membersLozenge.removeClass('disabled');
         }
 
-        function disableInterface(reason) {
+        this.disableInterface = function(reason) {
             view.showNotice(reason);
             $messageFormInputs.prop('disabled', true);
             $membersCountLozenge.hide();
             $membersLozenge.addClass('disabled');
+        }
+
+        this.joinAndAwaitConnect = function() {
+            $nameField.addClass('connecting');
+            $joinButton.addClass('connecting');
+        }
+
+        this.joinSuccessful = function() {
+            $login.addClass('hidden');
+            $messages.removeClass('hidden');
+            $status.removeClass('hidden');
+        }
+
+        this.nameVal = function() {
+            return $nameField.val();
+        }
+
+        this.showNameValidationError = function() {
+            $nameField.attr('placeholder', '@handle is required').addClass('validation-error');
         }
 
         this.showNotice = function(message) {
@@ -155,33 +181,17 @@
             $flashNoticePusher.hide();
         };
 
-        // Connection state change handler
-        // * Disconnected / suspended: disable user input and display meaningful message
-        // * Closed: disable user input and display meaningful message (closed following a request)
-        // * Connected: re-enable input and hide message
-        this.updateConnectionState = function(state) {
-            if (state.current === 'disconnected' || state.current === 'suspended') {
-                disableInterface("Reconnecting....");
-            } else if (state.current === 'closed') {
-                disableInterface('Connection is closed as a result of a user interaction');
-            } else if (state.current === 'connecting') {
-                disableInterface('Connecting to Ably...');
-            } else if (state.current === 'connected') {
-                enableInterface();
-            }
-        };
-
-        this.showNewMessage = function (message) {
+        this.showNewMessage = function(message) {
             addToMessageList(messageElem(message));
         };
 
         // Receives an Ably presence message and shows it on the screen
-        this.showPresenceEvent = function (presenceMessage, members) {
+        this.showPresenceEvent = function(presenceMessage, members) {
             addToMessageList(presenceElem(presenceMessage));
             updateMembers(members);
         };
 
-        this.prependHistoricalMessages = function (messages) {
+        this.prependHistoricalMessages = function(messages) {
             var message,
                 elem;
 
@@ -206,12 +216,17 @@
                     errorMessage += "\n" + JSON.stringify(err);
                 }
             }
+            alert(errorMessage);
         };
 
         // Clears the messages list
         this.resetMessages = function () {
             $messageList.empty();
         };
+
+        this.appLoaded = function() {
+            $login.removeClass('hidden');
+        }
     }
 
     window.View = View;

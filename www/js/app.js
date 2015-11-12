@@ -6,9 +6,12 @@
         ABLY_CHANNEL_NAME: 'mobile:chat',
 
         // Chat and presence messages to retrieve
-        HISTORY_MESSAGES_LIMIT: 50
+        HISTORY_MESSAGES_LIMIT: 50,
+
+        TOKEN_PATH: 'https://www.ably.io/ably-auth/token-request/demos'
     };
 
+    MicroEvent.mixin(ChatApp);
     function ChatApp(view) {
         var app = this;
 
@@ -97,13 +100,15 @@
             view.clientId = clientId;
 
             app.ably = new Ably.Realtime({
-                authUrl: 'https://www.ably.io/ably-auth/token-request/demos',
+                authUrl: Constants.TOKEN_PATH,
                 clientId: clientId,
-                transports: ['web_socket'], // TODO: Do not lock into the WS transport, use any transport available
-                log: { level: 4 }
+                log: { level: 2 }
             });
-            app.ably.connection.on(view.updateConnectionState);
-            app.ably.connection.on('failed', view.showError);
+
+            app.ably.connection.on(function() {
+                app.trigger('connection.statechange', this.event);
+                app.trigger('connection.' + this.event);
+            });
 
             // Be more aggressive in reconnect attempts, after 5s when disconnected, after 15s when suspended (connection is suspended after 120s of being disconnected)
             app.ably.connection.on('disconnected', function() { attemptReconnect(5000); });

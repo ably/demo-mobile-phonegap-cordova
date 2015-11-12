@@ -1,0 +1,589 @@
+/*
+    CSS switches:
+
+    <html/> (system messages)
+    - system-offline
+    - system-typing
+    - system-sending
+
+    <body/> (UI elements toggles)
+    - show-user-menu
+*/
+
+$animate-ms:    250ms;
+$bgdark:        #DDDDDD;
+$bordersize:    2px;
+$darkorange:    #FAA000;
+$minwidth:      295px;
+$orange:        #FFB600;
+$silver:        #cccccc;
+$cubic-curve:   cubic-bezier(0.05, 0.31, 0.59, 1.18);
+
+// choose swatches: http://html-color-codes.info/
+// add addition hex values to increase the theme array
+// WARNING: avoid light colors like yellow.
+$colors: #B4045F #8904B1 #0431B4 #088A85
+         #04B404 #D7DF01 #DF7401 #FF0000;
+
+
+
+@mixin status-icons($glyph, $color: white) {
+    font-family: 'icomoon';
+    display: inline-block;
+    vertical-align: middle;
+    margin:0 5px 0 3px;
+    content: $glyph;
+    color: #{$color};
+};
+
+@mixin theme-mixin($prefix, $color, $index) {
+    #{$prefix} {
+        &.thread-event {
+            border-color: $color;
+            &:before {
+                background-color: $color;
+            }
+            .handle {
+                color: $color;
+                &:after {
+                    // uncomment to show theme number
+                    // content: '#{$index}';
+                }
+            }
+        }
+        &.user-item {
+            em {
+                background-color: $color;
+            }
+        }
+    }
+}
+
+// Generate the theme classNames from $colors Array
+@each $color in $colors {
+    $index: index($colors, $color);
+    $selector: unquote('.theme-#{$index}');
+    @include theme-mixin($selector, $color, $index);
+}
+
+body {
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    background-image: radial-gradient(50% 50%, #FFFFFF 20%, $bgdark 95%);
+    background-repeat: no-repeat;
+    background-color: $bgdark;
+    background-size: 800px 800px;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+}
+.container {
+    min-width: $minwidth;
+    margin: 0 auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: table;
+    vertical-align: middle;
+    height: 100%;
+    width: 50%;
+    text-align: center;
+    .centerMiddle {
+        display: table-cell;
+        height: 100%;
+        vertical-align: middle;
+    }
+}
+.hidden { display: none!important; }
+.login {
+    display: block;
+    width: 60%;
+    margin: 0 auto;
+    height: 380px;
+    min-width: $minwidth;
+}
+.logo {
+    svg {
+        width: 100%;
+        height: auto;
+    }
+    &-subtitle {
+        background: $silver;
+        opacity: 0.7;
+        padding: 2px 10px;
+        text-align: center;
+        border-radius: 2em;
+        color: white;
+    }
+}
+.handle {
+    margin-top: 100px;
+}
+.form {
+    &-text,
+    &-button {
+        width: 94%;
+        border: 2px solid black;
+        display: block;
+        margin: 0 0 6px 0;
+        padding:6px 0;
+        border-radius: 5px;
+        padding: 3%;
+        text-decoration: none;
+        font-size: 1.5em;
+    }
+    &-text {
+        display: block;
+        visibility: visible;
+        top: 0px;
+
+        &.validation-error {
+            border: 2px solid red;
+            animation-name: flasherror;
+            animation-duration: 350ms;
+        }
+
+        &.connecting {
+            animation-name: showhandle;
+            animation-duration: 250ms;
+            animation-timing-function: cubic-bezier(0.16, 0.93, 1, 1);
+            position: relative;
+            visibility: hidden;
+        }
+    }
+    &-button {
+        background-color: black;
+        border-color: black;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        padding: 2% 3%;
+        &:before {
+            content: 'Join';
+            display: block;
+            width: 100%;
+        }
+        &.connecting {
+            &:before {
+                content: 'connecting...';
+            }
+            background-color: #fff;
+            border-color: #fff;
+            border-radius: 30px;
+            color: $silver;
+            animation-name: makeready;
+            animation-duration: 250ms;
+            animation-timing-function: ease;
+
+        }
+    }
+    &-message {
+       	width: 90%;
+    	border: 0;
+	    padding: 3px 0 3px 9px;
+	    font-size: 20px;
+    }
+}
+.user {
+    &-menu {
+        position: absolute;
+        background-color: black;
+        color: white;
+        right: 0;
+        bottom: 100%;
+        border-radius: 5px 5px 0 5px;
+        display: none;
+        box-shadow: 0px -4px 10px -1px rgba(0,0,0,0.3);
+        .show-user-menu & {
+            display: block;
+        }
+    }
+    &-inner {
+        padding: 0;
+        margin: 0;
+    }
+    &-list {
+        list-style: none;
+        padding: 0;
+        margin:0;
+    }
+    &-item {
+        display: block;
+        color: white;
+        font-size: 18px;
+        border-top: 1px solid #666;
+        padding: 8px 0;
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        em, span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        em {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            color: white;
+            border-radius: 30px;
+            margin: 0 10px;
+            font-style: normal;
+            line-height: 1.7;
+            background-color: red;
+        }
+        span {
+            font-size: 14px;
+            padding-left: 5px;
+        }
+    }
+    &-heading {
+        display: block;
+        font-size: 24px;
+        padding: 10px 50px 10px 10px;
+        &.icon-talk:before {
+            position: relative;
+            top: 2px;
+        }
+        strong {
+            display: inline-block;
+            padding-left: 8px;
+            font-size: 0.95em;
+        }
+    }
+}
+.msg {
+    &-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        background: $orange;
+        border-top: 1px solid black;
+        box-shadow: 0 0 30px -4px rgba(0,0,0,0.6);
+    }
+    &-container {
+        width: 50%;
+        min-width: 300px;
+        margin: 0 auto;
+    }
+    &-inner {
+        max-width: 100%;
+        margin: 0 auto;
+        position: relative;
+    }
+    &-input {
+        margin: 20px 0;
+        background: white;
+        width: auto;
+        display: block;
+        border-radius: 4px;
+        padding: 4px;
+        border: 1px solid black;
+    }
+    &-status,
+    &-people {
+        background: black;
+        color: white;
+        position: absolute;
+        top: 0;
+        bottom: auto;
+        border-radius: 2em;
+        min-width: 2em;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px 14px;
+        font-weight: bold;
+        margin: -34px 0 0 0;
+    }
+    &-status {
+        left: 0;
+        right: auto;
+        padding-left: 6px;
+        opacity: 0;
+        &-text {
+            font-size: 14px;
+        }
+    }
+    &-people {
+        padding-right: 6px;
+        left: auto;
+        right: 0;
+    }
+    &-menu {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom:0;
+        left: auto;
+        margin: 0;
+        margin: 0 -2px 0 0;
+        .icon-menu {
+            font-size: 32px;
+            margin:1px 3px 0 0;
+            display: block;
+            .show-user-menu & {
+                background-color: black;
+                color: white;
+                border-radius: 0 0 5px 5px;
+            }
+        }
+    }
+}
+
+.system {
+    &-event {
+        border-radius: 50px;
+        margin: 2px 0;
+        text-align: center;
+        display: inline-block;
+        width: 100%;
+        .thread & {
+            .text {
+                border-radius: 15px;
+                padding: 4px 2em;
+                background-color: #666666;
+                color: #cfcfcf;
+                text-align: center;
+                display: inline-block;
+                width: auto;
+                font-size: 0.8em;
+            }
+            &.disconnect .text {
+                background-color: #cfcfcf;
+                color: #666666;
+            }
+        }
+    }
+    &-typing {
+        .msg-status {
+            opacity: 1;
+            &-text:before {
+                @include status-icons("\e604");
+            }
+        }
+    }
+    &-offline {
+        .msg-status {
+            opacity: 1;
+            background-color: #D0021B;
+            &-text:before {
+                @include status-icons("\e606");
+            }
+        }
+        .thread {
+            animation-name: fadeout;
+            animation-duration: 1000ms;
+            animation-timing-function: $cubic-curve;
+            opacity: 0.3;
+        }
+
+    }
+    &-sending {
+        .msg-status {
+            opacity: 1;
+            background-color: #000000;
+            &-text:before {
+                @include status-icons("\e600");
+            }
+        }
+    }
+}
+.thread {
+    display: block;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 130px;
+    opacity: 1;
+    text-align: left;
+    &-event {
+        display:block;
+        margin: 10px 0;
+        background-color: #ccc;
+        padding: 30px 12px 15px;
+        border-radius: 8px;
+        width: 80%;
+        position: relative;
+        background-color: white;
+        color: black;
+        i {display: none;}
+        border: $bordersize solid black;
+        &:before,
+        &:after {
+            content: ' ';
+            width: 20px;
+            height: 20px;
+            display:block;
+            position: absolute;
+            top: 41%;
+            transform: rotate(45deg);
+            z-index: -1 !important;
+            bottom:0;
+        }
+        &:before {
+            background: black;
+            left:-5px;
+            right:0;
+        }
+        &:after {
+            display: none;
+            background: $darkorange;
+            left:auto;
+            right:-5px;
+        }
+        &.them {
+            animation-duration: $animate-ms;
+            animation-name: slidethem;
+            animation-timing-function: $cubic-curve;
+            margin-left: 0;
+        }
+
+        &.me {
+            &:before { display: none; }
+            &:after { display: block; }
+            animation-duration: $animate-ms;
+            animation-name: slideme;
+            animation-timing-function: $cubic-curve;
+
+            background-color: $darkorange;
+            border-color: $darkorange;
+            margin-left: auto;
+            margin-right: 0;
+            color: white;
+            i {
+                display: inline-block;
+            }
+            .time {
+                color: rgba(255,255,255,0.5);
+            }
+            .handle { visibility: hidden; }
+        }
+
+    }
+    .handle, .time {
+        position: absolute;
+        top:0;
+        font-size: 12px;
+        color: white;
+        display: inline-block;
+        vertical-align: middle;
+        margin:8px;
+
+        i {
+            color: white;
+            width: 16px;
+            text-align: left;
+            margin-left: -3px;
+            display: inline-block;
+        }
+    }
+    .time i {
+        display: none;
+    }
+    .me {
+        .time i {
+            display: inline-block;
+        }
+    }
+    .handle {
+        color: black;
+        &:before {
+            content: '@';
+        }
+        left: 0;
+    }
+    .time {
+        color: rgba(0,0,0,0.4);
+        right:0;
+
+    }
+    .text {
+        display: block;
+    }
+}
+
+
+@keyframes makeready {
+    0% {
+        border-radius: 30px;
+        background-color: $silver;
+    }
+    100% {
+        border-radius: 5px;
+        background-color: black;
+    }
+}
+@keyframes showhandle {
+    0% {
+        opacity: 0;
+        visibility: visible;
+        top: 20px;
+    }
+    100% {
+        opacity: 1;
+        top: 0px;
+    }
+}
+@keyframes flasherror {
+    0% {
+        border: 2px solid black;
+    }
+    50% {
+        border: 2px solid red;
+    }
+    100% {
+        border: 2px solid black;
+    }
+}
+@keyframes slideme {
+    0% {
+        margin-right: -100px;
+        opacity: 0;
+    }
+    80% {
+        margin-right: -20px;
+        opacity: 0.1;
+    }
+    100% {
+        margin-right: 0;
+        opacity: 1;
+    }
+}
+@keyframes slidethem {
+    0% {
+        margin-left: -100px;
+        opacity: 0;
+    }
+    80% {
+        margin-left: -20px;
+        opacity: 0.1;
+    }
+    100% {
+        margin-left: 0;
+        opacity: 1;
+    }
+}
+@keyframes fadeout {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}
+
+
+
+
+
+
+
+
+
+// kilroy was here :D

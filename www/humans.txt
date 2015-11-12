@@ -1,0 +1,15 @@
+A Phonegap / Cordova chat demo using the Ably Realtime Messaging platform
+
+https://www.ably.io
+
+# TEAM
+
+    Matthew O'Riordan -- CEO -- ably-realtime
+
+# THANKS
+
+    Stanislav Nedelchev
+
+# TECHNOLOGY COLOPHON
+
+    Ably Realtime, CSS3, HTML5

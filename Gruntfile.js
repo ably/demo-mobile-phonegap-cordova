@@ -62,7 +62,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', ['sass', 'concat']);
   grunt.registerTask('watch:server', ['build', 'nodestatic:watch', 'watch']);
-  grunt.registerTask('server', ['build', 'nodestatic:server']);
+  grunt.registerTask('server', ['nodestatic:server']);
 
   grunt.registerTask('default', ['build']);
 };

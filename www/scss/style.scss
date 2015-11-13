@@ -348,6 +348,24 @@ body {
     }
 }
 
+/* Move the status to the top on smaller screens to avoid overlap with user counts */
+@media screen and (max-width: 768px) {
+    .msg-status {
+        position: fixed;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        border-bottom: 1px solid black;
+        box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.8);
+        width: 100%;
+        text-align: center;
+        padding: 0;
+        .msg-status-text {
+            padding: 10px 6px;
+        }
+    }
+}
+
 .system {
     &-event {
         border-radius: 50px;

@@ -39,7 +39,8 @@
                 view.trigger('login.submit', $loginNameField.val());
             });
 
-            $loginButton.on('click', function() {
+            $loginButton.on('click', function(event) {
+                event.preventDefault();
                 $loginForm.submit();
             });
 

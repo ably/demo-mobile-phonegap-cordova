@@ -41,23 +41,29 @@ $(document).ready(function () {
     // * Closed: disable user input and display meaningful message (closed following a request)
     // * Connected: re-enable input and hide message
     app.on('connection.statechange', function(state) {
-        console.log("Connection state change", state);
+        console.log("Connection state changed:", state);
 
-        if (state === 'disconnected' || state === 'suspended') {
-            view.disableInterface("You are disconnected, we'll try and reconnect shortly...");
-        } else if (state === 'closed') {
-            view.disableInterface('The connection has been closed as a result of a user action');
-        } else if (state === 'connecting') {
-            if (document.appHasJoined) {
+        if ((state === 'connected') && !document.appHasJoined) {
+            document.appHasJoined = true;
+            return view.joinSuccessful();
+        }
+
+        /* App has not yet initialized, state changes have no interface to updae */
+        if (!document.appHasJoined) { return; }
+
+        switch(state) {
+            case 'suspended':
+            case 'disconnected':
+                view.disableInterface("You are disconnected, we'll try and reconnect shortly...");
+                break
+            case 'closed':
+                view.disableInterface('The connection has been closed as a result of a user action');
+                break;
+            case 'connecting':
                 view.disableInterface('You are disconnected, tring to reconnect to Ably now...');
-            }
-        } else if (state === 'connected') {
-            if (!document.appHasJoined) {
-                document.appHasJoined = true;
-                view.joinSuccessful();
-            } else {
+                break;
+            case 'connected':
                 view.enableInterface();
-            }
         }
     });
 

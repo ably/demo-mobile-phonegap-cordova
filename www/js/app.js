@@ -106,14 +106,33 @@
         // * Attach channel
         // * Notify caller via success callback
         this.initialize = function (clientId) {
-            app.clientId = clientId;
-            view.clientId = clientId;
+            var logLevel = 2,
+                logLevelParam = Utils.parseQuery(document.location.search).logLevel;
+            if (!isNaN(parseInt(logLevelParam))) {
+                logLevel = logLevelParam;
+            }
 
-            app.ably = new Ably.Realtime({
+            var realtimeOptions = {
                 authUrl: getTokenRequestUrl(clientId),
                 clientId: clientId,
-                log: { level: 2 }
-            });
+                log: { level: logLevel }
+            }
+
+            var key = Utils.parseQuery(document.location.search).key;
+            if (key) {
+                realtimeOptions.key = key;
+                delete realtimeOptions.authUrl;
+            }
+
+            var environment = Utils.parseQuery(document.location.search).environment;
+            if (environment) {
+                realtimeOptions.environment = environment;
+            }
+
+            app.ably = new Ably.Realtime(realtimeOptions);
+
+            app.clientId = clientId;
+            view.clientId = clientId;
 
             app.ably.connection.on(function() {
                 app.trigger('connection.statechange', this.event);

@@ -19,7 +19,7 @@ The cordova CLI tool should install the whitelist plugin for the specific platfo
 
 ## Debugging on a mobile device
 
-You can use the [remote debugging feature](https://developer.chrome.com/devtools/docs/remote-debugging) of Chrome.
+You can use the remote debugging feature of [Chrome](https://developer.chrome.com/devtools/docs/remote-debugging), or [Safari](https://developer.apple.com/safari/tools/).
 
 ## View demo in your desktop / mobile browser
 
@@ -44,3 +44,12 @@ You can run the grunt task as follows:
 
 * `npm install`
 * `grunt watch:server`
+
+## Configurable options via query string params
+
+The following query string params can be appended to the app URL to change the default configuration of the demo:
+
+* `autoLogin`: do not prompt the user for a username and log the user in automatically
+* `logLevel`: configure the Ably Realtime log level: 0 is lowest, 5 is most verbose
+* `key`: use this API key instead of the default end point for generating a token
+* `environment`: defaults to `production`, but can be configured as `sandbox` for example

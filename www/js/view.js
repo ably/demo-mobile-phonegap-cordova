@@ -160,9 +160,9 @@
         function ensureNewMessagesAreVisible(callback) {
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                 window.setTimeout(function() {
-                    $('html, body').scrollTop($(document).height() - $(window).height());
+                    $('body').scrollTop($(document).height() + 1000);
                     if (callback) { callback(); }
-                }, 50);
+                }, 200);
             }
         }
 

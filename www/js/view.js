@@ -48,6 +48,7 @@
                 if (event.keyCode == 13) {
                     event.preventDefault();
                     view.trigger('message.send', $msgPanelInput.val());
+                    $msgPanelInput.blur();
                 } else {
                     view.trigger('message.keydown', event.keyCode);
                 }

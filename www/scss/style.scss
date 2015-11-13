@@ -173,13 +173,13 @@ body {
             &:before {
                 content: 'connecting...';
             }
-            background-color: #fff;
-            border-color: #fff;
+            background-color: #BBB;
+            border-color: #BBB;
             border-radius: 30px;
-            top: -60px;
+            top: -100px;
             animation-name: makeready;
-            animation-duration: 1500ms;
-            animation-timing-function: ease;
+            animation-duration: 2500ms;
+            animation-timing-function: cubic-bezier(.16,1.05,.66,.91);
 
         }
     }
@@ -529,14 +529,16 @@ body {
 
 @keyframes makeready {
     100% {
-        top: -60px;
+        top: -100px;
         border-radius: 30px;
         background-color: #AAA;
+        border-color: #BBB;
     }
     0% {
         top: 0px;
         border-radius: 5px;
         background-color: black;
+        border-color: black;
     }
 }
 @keyframes hidehandle {

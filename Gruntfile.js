@@ -9,11 +9,7 @@ module.exports = function (grunt) {
       vendor: {
         src: ['www/js/vendor/*.js'],
         dest: 'www/js/compiled/vendor.js',
-      },
-      app: {
-        src: ['www/js/*.js'],
-        dest: 'www/js/compiled/app.js',
-      },
+      }
     },
 
     // Convert SCSS to CSS
@@ -66,7 +62,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', ['sass', 'concat']);
   grunt.registerTask('watch:server', ['build', 'nodestatic:watch', 'watch']);
-  grunt.registerTask('server', ['build', 'nodestatic:server']);
+  grunt.registerTask('server', ['nodestatic:server']);
 
   grunt.registerTask('default', ['build']);
 };

@@ -155,30 +155,33 @@ body {
     animation-name: flasherror;
     animation-duration: 350ms; }
   .form-text.connecting {
-    animation-name: showhandle;
-    animation-duration: 250ms;
-    animation-timing-function: cubic-bezier(0.16, 0.93, 1, 1);
-    position: relative;
-    visibility: hidden; }
+    border: 2px solid black;
+    opacity: 0;
+    animation-name: hidehandle;
+    animation-duration: 100ms;
+    animation-timing-function: cubic-bezier(0.16, 0.93, 1, 1); }
 .form-button {
   background-color: black;
   border-color: black;
   border-radius: 5px;
   color: white;
   font-weight: bold;
-  padding: 2% 3%; }
+  padding: 2% 3%;
+  z-index: 10;
+  position: relative;
+  top: 0px; }
   .form-button:before {
     content: 'Join';
     display: block;
     width: 100%; }
   .form-button.connecting {
-    background-color: #fff;
-    border-color: #fff;
+    background-color: #BBB;
+    border-color: #BBB;
     border-radius: 30px;
-    color: #cccccc;
+    top: -100px;
     animation-name: makeready;
-    animation-duration: 250ms;
-    animation-timing-function: ease; }
+    animation-duration: 2500ms;
+    animation-timing-function: cubic-bezier(0.16, 1.05, 0.66, 0.91); }
     .form-button.connecting:before {
       content: 'connecting...'; }
 .form-message {
@@ -227,7 +230,9 @@ body {
     margin: 0 10px;
     font-style: normal;
     line-height: 1.7;
-    background-color: red; }
+    background-color: #FAA000; }
+  .user-item span.me {
+    color: #AAA; }
   .user-item span {
     font-size: 14px;
     padding-left: 5px; }
@@ -268,6 +273,8 @@ body {
   border-radius: 4px;
   padding: 4px;
   border: 1px solid black; }
+  .show-user-menu .msg-input {
+    border-radius: 4px 0 4px 4px; }
 .msg-status, .msg-people {
   background: black;
   color: white;
@@ -300,14 +307,15 @@ body {
   left: auto;
   margin: 0;
   margin: 0 -2px 0 0; }
+  .msg-menu a {
+    color: black; }
   .msg-menu .icon-menu {
     font-size: 32px;
     margin: 1px 3px 0 0;
     display: block; }
     .show-user-menu .msg-menu .icon-menu {
       background-color: black;
-      color: white;
-      border-radius: 0 0 5px 5px; }
+      color: white; }
 
 .system-event {
   border-radius: 50px;
@@ -324,7 +332,7 @@ body {
     display: inline-block;
     width: auto;
     font-size: 0.8em; }
-  .thread .system-event.disconnect .text {
+  .thread .system-event.left .text {
     background-color: #cfcfcf;
     color: #666666; }
 .system-typing .msg-status {
@@ -346,15 +354,20 @@ body {
     margin: 0 5px 0 3px;
     content: "";
     color: white; }
-.system-offline .thread {
-  animation-name: fadeout;
+.system-offline .msg-bar {
+  background-color: #cccccc;
+  animation-name: greyout;
   animation-duration: 1000ms;
-  animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18);
-  opacity: 0.3; }
-.system-sending .msg-status {
+  animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18); }
+.system-offline .msg-bar .msg-input, .system-offline .msg-bar .msg-input input {
+  background-color: #DDD;
+  animation-name: input-greyout;
+  animation-duration: 1000ms;
+  animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18); }
+.system-sending .msg-status, .system-loading .msg-status {
   opacity: 1;
   background-color: #000000; }
-  .system-sending .msg-status-text:before {
+  .system-sending .msg-status-text:before, .system-loading .msg-status-text:before {
     font-family: 'icomoon';
     display: inline-block;
     vertical-align: middle;
@@ -401,7 +414,7 @@ body {
       background: #FAA000;
       left: auto;
       right: -5px; }
-    .thread-event.them {
+    .thread-event.not-me {
       animation-duration: 250ms;
       animation-name: slidethem;
       animation-timing-function: cubic-bezier(0.05, 0.31, 0.59, 1.18);
@@ -455,20 +468,21 @@ body {
     display: block; }
 
 @keyframes makeready {
-  0% {
+  100% {
+    top: -100px;
     border-radius: 30px;
-    background-color: #cccccc; }
-  100% {
-    border-radius: 5px;
-    background-color: black; } }
-@keyframes showhandle {
+    background-color: #AAA;
+    border-color: #BBB; }
   0% {
-    opacity: 0;
-    visibility: visible;
-    top: 20px; }
+    top: 0px;
+    border-radius: 5px;
+    background-color: black;
+    border-color: black; } }
+@keyframes hidehandle {
+  0% {
+    opacity: 1; }
   100% {
-    opacity: 1;
-    top: 0px; } }
+    opacity: 0; } }
 @keyframes flasherror {
   0% {
     border: 2px solid black; }
@@ -496,10 +510,15 @@ body {
   100% {
     margin-left: 0;
     opacity: 1; } }
-@keyframes fadeout {
+@keyframes greyout {
   0% {
-    opacity: 1; }
+    background-color: #FFB600; }
   100% {
-    opacity: 0.3; } }
+    background-color: #cccccc; } }
+@keyframes input-greyout {
+  0% {
+    background-color: white; }
+  100% {
+    background-color: #DDD; } }
 
 /*# sourceMappingURL=style.css.map */

@@ -116,7 +116,6 @@
                 authUrl: getTokenRequestUrl(clientId),
                 clientId: clientId,
                 log: { level: logLevel },
-                transportParams: { stream: false } // TODO: remove once realtime issue 371 is resolved
             }
 
             var key = Utils.parseQuery(document.location.search).key;

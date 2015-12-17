@@ -215,11 +215,6 @@
 
         // Explicitly reconnect to Ably and joins channel
         this.reconnect = function () {
-            // app.ably.connection.connect(); // channel automatically reattaches due to channelStateLost()
-            // TODO: Remove this once https://github.com/ably/ably-js/issues/95 is fixed
-            if (app.ably && app.ably.connection) {
-                app.ably.connection.off();
-            }
             app.initialize(app.clientId);
         };
 

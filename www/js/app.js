@@ -84,7 +84,7 @@
         function channelStateLost() {
             // remove all listeners as we will set them up again once the connection is restored
             app.ablyChannel.unsubscribe();
-            app.ablyChannel.presence.off();
+            app.ablyChannel.presence.unsubscribe();
 
             app.ably.connection.once('connected', function() {
                 app.joinChannel();

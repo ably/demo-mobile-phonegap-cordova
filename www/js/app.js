@@ -176,7 +176,7 @@
             channel.attach(); // if joinChannel called a second time, an explicit attach may be required
 
             channel.subscribe(view.showNewMessage);
-            presence.on(membersChanged);
+            presence.subscribe(membersChanged);
 
             presence.enter(function(err) {
                 if (err) {

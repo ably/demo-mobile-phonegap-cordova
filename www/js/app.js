@@ -105,7 +105,7 @@
         // * Connect using Token Request
         // * Attach channel
         // * Notify caller via success callback
-        this.initialize = function (clientId) {
+        this.initialize = function(clientId) {
             var logLevel = 2,
                 logLevelParam = Utils.parseQuery(document.location.search).logLevel;
             if (!isNaN(parseInt(logLevelParam))) {
@@ -116,6 +116,8 @@
                 authUrl: getTokenRequestUrl(clientId),
                 clientId: clientId,
                 log: { level: logLevel },
+                disconnectedRetryTimeout: 5000, /* reattempt connect every 5s - default is 15s */
+                suspendedRetryTimeout:    15000 /* reattempt connect when suspended every 15s - default is 30s */
             }
 
             var key = Utils.parseQuery(document.location.search).key;
@@ -138,10 +140,6 @@
                 app.trigger('connection.statechange', this.event);
                 app.trigger('connection.' + this.event);
             });
-
-            // Be more aggressive in reconnect attempts, after 5s when disconnected, after 15s when suspended (connection is suspended after 120s of being disconnected)
-            app.ably.connection.on('disconnected', function() { attemptReconnect(5000); });
-            app.ably.connection.on('suspended',    function() { attemptReconnect(15000); });
 
             app.ablyChannel = app.ably.channels.get(Constants.ABLY_CHANNEL_NAME);
             app.joinChannel();

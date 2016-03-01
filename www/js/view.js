@@ -126,9 +126,9 @@
                 $text,
                 dateAsLocalTime = Utils.formatDateAsLocalTime(new Date(presence.timestamp));
 
-            if (presence.action === Ably.Realtime.PresenceMessage.Action.ENTER) {
+            if (presence.action === 'enter') {
                 actionText = 'entered';
-            } else if (presence.action === Ably.Realtime.PresenceMessage.Action.LEAVE) {
+            } else if (presence.action === 'leave') {
                 actionText = 'left';
             } else {
                 return;

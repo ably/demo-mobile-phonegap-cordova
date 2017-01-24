@@ -13,6 +13,8 @@ Want to try this demo now? Deploy to Heroku for free:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+_If you are deploying to Heroku, then your app by default will not have history enabled which means all chat data is lost after 2 minutes. See [enabling history below](#enabling-history)._
+
 ## View demo on a mobile device
 
 * Make sure you have [Cordova Command-Line Interface 5.1.1+](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface) installed. Usually done by `npm install -g cordova`.
@@ -32,7 +34,9 @@ Deploy to Heroku for free:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Or access our demo app running on Heroku at:
+_If you are deploying to Heroku, then your app by default will not have history enabled which means all chat data is lost after 2 minutes. See [enabling history below](#enabling-history)._
+
+OR access our demo app running on Heroku at:
 
 [bit.do/ably-demo](http://bit.do/ably-demo)
 
@@ -55,6 +59,12 @@ You can run the grunt task as follows:
 
 * `npm install`
 * `grunt watch:server`
+
+## Enabling history
+
+If your app is running on Heroku, or you have run the [Express server](./server.js) with an `ABLY_API_KEY` environment variable, then it is likely that history is not yet enabled for your application. As such, all message and presence history will be discarded by Ably after 2 minutes.
+
+The app publishes, subscribes and registers presence on a channel named `mobile:chat`. To enable history on this channel, please see our support article [how do I enable history](https://support.ably.io/solution/articles/3000058707-how-do-i-enable-history-my-messages-are-not-being-stored-for-longer-than-a-few-minutes-).
 
 ## Configurable options via query string params
 

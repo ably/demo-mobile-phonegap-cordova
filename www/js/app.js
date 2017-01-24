@@ -1,14 +1,22 @@
 (function (window) {
     "use strict";
 
+    var isCordovaApp = !!window.cordova;
+
     var Constants = {
         // Ably channel name
         ABLY_CHANNEL_NAME: 'mobile:chat',
 
         // Chat and presence messages to retrieve
         HISTORY_MESSAGES_LIMIT: 50,
+    }
 
-        TOKEN_PATH: 'https://www.ably.io/ably-auth/token-request/demos'
+    if (isCordovaApp) {
+        // If running under Cordova / PhoneGap, then use a demo token provided by Ably
+        Constants.TOKEN_PATH = 'https://www.ably.io/ably-auth/token-request/demos';
+    } else {
+        // If running locally or in Heroku, then use the local token provider
+        Constants.TOKEN_PATH = '/token';
     };
 
     MicroEvent.mixin(ChatApp);  /* add EventEmitter to View class i.e. bind and trigger */

@@ -4,9 +4,10 @@ Ably is a hugely scalable, superfast and secure hosted real-time messaging servi
 
 This Phonegap / Cordova demo uses the Ably real-time message service and provides a simple example of how to use the following features:
 
-* Channels and publishing and subscribing to messages
-* Presence, entering channels and subscribing to presence events
-* Token authentication from a URL
+* [Channels and publishing and subscribing to messages](https://www.ably.io/documentation/realtime/channels-messages)
+* [Presence, entering channels and subscribing to presence events](https://www.ably.io/documentation/realtime/presence)
+* [Token authentication from a URL](https://www.ably.io/documentation/general/authentication)
+* [Message and presence history](https://www.ably.io/documentation/realtime/history)
 
 Want to try this demo now? Deploy to Heroku for free:
 

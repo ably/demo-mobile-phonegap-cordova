@@ -8,6 +8,10 @@ This Phonegap / Cordova demo uses the Ably real-time message service and provide
 * Presence, entering channels and subscribing to presence events
 * Token authentication from a URL
 
+Want to try this demo now? Deploy to Heroku for free:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## View demo on a mobile device
 
 * Make sure you have [Cordova Command-Line Interface 5.1.1+](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface) installed. Usually done by `npm install -g cordova`.
@@ -22,6 +26,12 @@ The cordova CLI tool should install the whitelist plugin for the specific platfo
 You can use the remote debugging feature of [Chrome](https://developer.chrome.com/devtools/docs/remote-debugging), or [Safari](https://developer.apple.com/safari/tools/).
 
 ## View demo in your desktop / mobile browser
+
+Deploy to Heroku for free:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Or access our demo app running on Heroku at:
 
 [bit.do/ably-demo](http://bit.do/ably-demo)
 

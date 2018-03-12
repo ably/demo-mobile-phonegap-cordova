@@ -15,6 +15,8 @@ Want to try this demo now? Deploy to Heroku for free:
 
 _If you are deploying to Heroku, then your app by default will not have history enabled which means all chat data is lost after 2 minutes. See [enabling history below](#enabling-history)._
 
+_Remember to set your api key on Heroku via the CLI (`heroku config:set ABLY_API_KEY=<YOUR_KEY>`) or [the dashboard](https://devcenter.heroku.com/articles/config-vars)_
+
 ## View demo on a mobile device
 
 * Run `npm install`. This will install the dependencies and the [Cordova Command-Line Interface](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface).

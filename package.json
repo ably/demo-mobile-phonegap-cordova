@@ -5,7 +5,7 @@
   "author": "Ably",
   "license": "Apache",
   "engines": {
-    "node": "4.2.2"
+    "node": "8.9.4"
   },
   "dependencies": {
     "ably": "^1.0",

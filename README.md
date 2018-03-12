@@ -18,10 +18,10 @@ _If you are deploying to Heroku, then your app by default will not have history 
 ## View demo on a mobile device
 
 * Run `npm install`. This will install the dependencies and the [Cordova Command-Line Interface](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface).
-* Install [cordova-plugin-whitelist](https://github.com/apache/cordova-plugin-whitelist) by running `cordova plugin add cordova-plugin-whitelist` in the root folder of the project.
-* [Add](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%20Command-Line%20Interface_add_platforms) the needed platforms (e.g. Android, iOS): `cordova platforms add android`.
+* Install [cordova-plugin-whitelist](https://github.com/apache/cordova-plugin-whitelist) by running `./node_modules/.bin/cordova plugin add cordova-plugin-whitelist` in the root folder of the project.
+* [Add](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%20Command-Line%20Interface_add_platforms) the needed platforms (e.g. Android, iOS): `./node_modules/.bin/cordova platforms add android`.
 The cordova CLI tool should install the whitelist plugin for the specific platform.
-* Run the application on your mobile device: `cordova platforms run android`.
+* Run the application on your mobile device: `./node_modules/.bin/cordova platforms run android`
 * Use the app.
 
 ## Debugging on a mobile device

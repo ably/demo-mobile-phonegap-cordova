@@ -15,13 +15,15 @@ Want to try this demo now? Deploy to Heroku for free:
 
 _If you are deploying to Heroku, then your app by default will not have history enabled which means all chat data is lost after 2 minutes. See [enabling history below](#enabling-history)._
 
+_Remember to set your api key on Heroku via the CLI (`heroku config:set ABLY_API_KEY=<YOUR_KEY>`) or [the dashboard](https://devcenter.heroku.com/articles/config-vars)_
+
 ## View demo on a mobile device
 
-* Make sure you have [Cordova Command-Line Interface 5.1.1+](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface) installed. Usually done by `npm install -g cordova`.
-* Install [cordova-plugin-whitelist](https://github.com/apache/cordova-plugin-whitelist) by running `cordova plugin add cordova-plugin-whitelist` in the root folder of the project.
-* [Add](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%20Command-Line%20Interface_add_platforms) the needed platforms (e.g. Android, iOS): `cordova platforms add android`.
+* Run `npm install`. This will install the dependencies and the [Cordova Command-Line Interface](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%2520Command-Line%2520Interface).
+* Install [cordova-plugin-whitelist](https://github.com/apache/cordova-plugin-whitelist) by running `./node_modules/.bin/cordova plugin add cordova-plugin-whitelist` in the root folder of the project.
+* [Add](https://cordova.apache.org/docs/en/5.1.1/guide_cli_index.md.html#The%20Command-Line%20Interface_add_platforms) the needed platforms (e.g. Android, iOS): `./node_modules/.bin/cordova platforms add android`.
 The cordova CLI tool should install the whitelist plugin for the specific platform.
-* Run the application on your mobile device: `cordova platforms run android`.
+* Run the application on your mobile device: `./node_modules/.bin/cordova platforms run android`
 * Use the app.
 
 ## Debugging on a mobile device

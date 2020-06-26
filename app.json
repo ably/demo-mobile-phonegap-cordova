@@ -2,7 +2,7 @@
   "name": "Ably Browser & PhoneGap Demo",
   "description": "A simple demo to demonstrate using Ably to power a live chat app using pub/sub messaging and presence",
   "repository": "https://github.com/ably/demo-mobile-phonegap-cordova",
-  "logo": "https://files.ably.io/logo-70x70.png",
+  "logo": "https://files.ably.com/logo-70x70.png",
   "keywords": ["Ably", "pub/sub", "chat", "realtime", "presence"],
   "addons": [
     {

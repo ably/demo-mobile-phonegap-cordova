@@ -17,7 +17,7 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-sass": "^0.9.2",
-    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-watch": "^1.1.0",
     "grunt-nodestatic": "^0.1.2",
     "sass": "^0.5"
   },
